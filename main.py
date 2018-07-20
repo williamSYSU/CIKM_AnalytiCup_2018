@@ -10,31 +10,34 @@ import torch.nn.functional as F
 import load_data
 import preprocess
 import train
-import modle
+import modelNet
 import test
 
-# load word embedding from .txt file
-embedding_filename = 'preprocess/word_embedding.txt'
-word_to_embedding = load_data.loadEmbedVocab(embedding_filename)
 
-# 从训练集得到数据对集合
-pairs = load_data.loadDataPairs('data/cikm_spanish_train_20180516.txt')
-# 从测试集得到数据对集合
-test_pairs = load_data.loadDataPairs('data/cikm_test_a_20180516.txt')
-# 从验证集得到数据对集合
-# TODO: load verify_pairs from spnaish train dat
-verify_pairs = load_data.loadDataPairs('data/cikm_english_train_20180516.txt')
+class PARAMETER():
+    def __init__(self):
+        # 从本地加载word embedding词典
+        self.word_to_embedding = load_data.loadEmbedVocab('preprocess/word_embedding.txt')
 
-# initialize model
-lstm = modle.Bi_LSTM()
-loss_function = nn.BCELoss()
-optimizer = optim.SGD(lstm.parameters(), lr=0.01)
+        # 加载数据对集合
+        self.train_pairs = load_data.loadDataPairs('data/cikm_spanish_train_20180516.txt')
+        self.test_pairs = load_data.loadDataPairs('data/cikm_test_a_20180516.txt')
 
-# 显示训练前的结果
-train.beforeTrain(model=lstm, loss_function=loss_function, optimizer=optimizer)
+        # 划分训练集和验证集
+        self.train_pairs, self.verify_pairs = preprocess.load_training_and_verify_pairs(pairs=self.train_pairs)
 
-# 开始训练模型
-train.beginTrain(model=lstm, loss_function=loss_function, optimizer=optimizer)
+        self.model = modelNet.Bi_LSTM()
+        self.loss_function = nn.BCELoss()
+        self.optimizer = optim.SGD(self.model.parameters(), lr=0.01)
 
-# 显示训练后在验证集上的结果
-test.verifyAfterTrainning(model=lstm, loss_function=loss_function, optimizer=optimizer)
+
+if __name__ == '__main__':
+    lstm = PARAMETER()
+    # 显示训练前的结果
+    train.beforeTrain(parameter=lstm)
+
+    # 开始训练模型
+    train.beginTrain(parameter=lstm)
+
+    # 显示训练后在验证集上的结果
+    test.verifyAfterTrainning(parameter=lstm)

@@ -1,6 +1,8 @@
 import torch
 import random
 
+from main import PARAMETER
+
 
 # 把句子转为tensor
 def tensorFromSentence(sentence, embedding):
@@ -42,7 +44,7 @@ def tensorsFromPair_verify(pair, embedding):
 
 
 # 将训练数据一分为二，80%做训练，20%做验证
-def training_test(pairs):
+def load_training_and_verify_pairs(pairs):
     pairs_true = []
     pairs_false = []
     for pair in pairs:
