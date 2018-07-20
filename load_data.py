@@ -124,4 +124,4 @@ for word in word_vocab:
 
 saveEembedVocab(word_to_embedding, 'preprocess/word_embedding.txt')
 
-# print(normalizeString('¿Cómo cambio mi dirección de email?'))
+print(normalizeString('¿Cómo cambio mi dirección de email?'))
