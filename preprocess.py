@@ -16,25 +16,25 @@ def tensorFromSentence(sentence, embedding):
 
 
 # 将数据对转化为相应的tensor
-def tensorsFromPair(pair):
-    input1_tensor = tensorFromSentence(pair[0])
-    input2_tensor = tensorFromSentence(pair[2])
+def tensorsFromPair(pair, embedding):
+    input1_tensor = tensorFromSentence(pair[0], embedding)
+    input2_tensor = tensorFromSentence(pair[2], embedding)
     # input_tensor=torch.cat((input1_tensor,input2_tensor),dim=0)
     label = pair[4]
     return (input1_tensor, input2_tensor, label)
 
 
 # 从数据对中选出对应西班牙语的数据对
-def tensorsFromPair_test(pair):
-    input1_tensor = tensorFromSentence(pair[0])
-    input2_tensor = tensorFromSentence(pair[1])
+def tensorsFromPair_test(pair, embedding):
+    input1_tensor = tensorFromSentence(pair[0], embedding)
+    input2_tensor = tensorFromSentence(pair[1], embedding)
     # input_tensor = torch.cat((input1_tensor, input2_tensor), dim=0)
     return (input1_tensor, input2_tensor)
 
 
-def tensorsFromPair_verify(pair):
-    input1_tensor = tensorFromSentence(pair[1])
-    input2_tensor = tensorFromSentence(pair[3])
+def tensorsFromPair_verify(pair, embedding):
+    input1_tensor = tensorFromSentence(pair[1], embedding)
+    input2_tensor = tensorFromSentence(pair[3], embedding)
     # input_tensor = torch.cat((input1_tensor, input2_tensor), dim=0)
     label = pair[4]
     return (input1_tensor, input1_tensor, label)

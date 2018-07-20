@@ -75,7 +75,7 @@ def saveEmbedVocab(vocab, filename, mode='wt'):
 
 
 # 从本地加载embedding
-def loadEmbedding(filename, mode='r'):
+def loadEmbedVocab(filename, mode='r'):
     embedding = {}
     with open(filename, encoding='utf-8', mode=mode) as file:
         for line in file:
@@ -84,26 +84,29 @@ def loadEmbedding(filename, mode='r'):
         return embedding
 
 
+# 从本地加载数据对集合
+def loadDataPairs(filename):
+    lines = open(filename, encoding='utf-8').read().strip().split('\n')
+    pairs = [[normalizeString(s) for s in line.split('\t')] for line in lines]
+    return pairs
+
+
 # 读取训练数据（西班牙源语）
-filename = 'data/cikm_spanish_train_20180516.txt'
-saveName = 'preprocess/spanish_train_vocab.txt'
+# filename = 'data/cikm_spanish_train_20180516.txt'
+# saveName = 'preprocess/spanish_train_vocab.txt'
 # loadData2Vocab(filename, saveName, loc1=0, loc2=2, vocab=spanish_train_vocab)
 
 
 # 读取训练数据（英语源语）
-filename = 'data/cikm_english_train_20180516.txt'
-saveName = 'preprocess/english_train_vocab.txt'
+# filename = 'data/cikm_english_train_20180516.txt'
+# saveName = 'preprocess/english_train_vocab.txt'
 # loadData2Vocab(filename, saveName, loc1=1, loc2=3, vocab=english_train_vocab)
 
 # 读取测试数据
-filename = 'data/cikm_test_a_20180516.txt'
-saveName = 'preprocess/spanish_test_vocab.txt'
+# filename = 'data/cikm_test_a_20180516.txt'
+# saveName = 'preprocess/spanish_test_vocab.txt'
 # loadData2Vocab(filename, saveName, loc1=0, loc2=1, vocab=spanish_test_vocab)
 
-# 读取词向量库（西班牙语）
-spanish_train_vocab = loadVocab('preprocess/spanish_train_vocab.txt')
-spanish_test_vocab = loadVocab('preprocess/spanish_test_vocab.txt')
-english_train_vocab = loadVocab('preprocess/english_train_vocab.txt')
 
 word_vocab = loadVocab('preprocess/word_vocab.txt')
 
@@ -130,9 +133,8 @@ word_to_embedding = {}
 #             items = line.strip().split()
 #             if word == normalizeString(items[0]):
 #                 word_to_embedding[word] = items[1:]
-#                 # print('len:',len(items[1:]))
+#                 print('len:',len(items[1:]))
 #                 break
-#
 # saveEmbedVocab(word_to_embedding, 'preprocess/word_embedding.txt')
 
 
