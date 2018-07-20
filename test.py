@@ -24,7 +24,9 @@ def verifyAfterTrainning(parameter):
                 label = torch.tensor([0], dtype=torch.float)
             loss = parameter.loss_function(tag_scores[0].view(-1), label)
             sum_loss += loss
-        print("avg_loss:", float(sum_loss / sum))
+
+        print("final_avg_loss:", float(sum_loss / sum))
+
         for pair in parameter.test_pairs:
             test_pair = [preprocess.tensorsFromPair_test(pair, parameter.word_to_embedding)]
             tag_scores = parameter.model(test_pair[0][0], test_pair[0][1])
@@ -32,5 +34,5 @@ def verifyAfterTrainning(parameter):
                 f.write(str(tag_scores[0].item()) + "\n")
 
 # TODO: save model
-
-# TODO: plot loss
+# save: learning rate, dropout rate, turns of epoch, loss in each epoch
+#       ratio between train and verify, test result log loss (.6f)

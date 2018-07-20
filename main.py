@@ -36,17 +36,22 @@ class PARAMETER():
 if __name__ == '__main__':
     lstm = PARAMETER()
 
-    # for idx, word in enumerate(lstm.word_to_embedding):
-    #     if idx is 3:
-    #         break
-    #     print(lstm.word_to_embedding[word])
-    #     print('len: ',len(lstm.word_to_embedding[word]))
+    word_vocab = load_data.loadVocab('preprocess/word_vocab.txt')
+    print('len of vocab: ', len(word_vocab))
+    print('len of dict: ', len(lstm.word_to_embedding))
+    print('missing: ', len(word_vocab) - len(lstm.word_to_embedding))
+    with open('preprocess/missing_word.txt', encoding='utf-8', mode='wt') as file:
+        for word in word_vocab:
+            if word not in lstm.word_to_embedding.keys():
+                # if word[0] >= '0' and word[0] <= '9':
+                #     continue
+                file.write(word + '\n')
 
-    # 显示训练前的结果
-    train.beforeTrain(parameter=lstm)
-
-    # 开始训练模型
-    train.beginTrain(parameter=lstm)
-
-    # 显示训练后在验证集上的结果
-    test.verifyAfterTrainning(parameter=lstm)
+    # # 显示训练前的结果
+    # train.beforeTrain(parameter=lstm)
+    #
+    # # 开始训练模型
+    # train.beginTrain(parameter=lstm)
+    #
+    # # 显示训练后在验证集上的结果
+    # test.verifyAfterTrainning(parameter=lstm)

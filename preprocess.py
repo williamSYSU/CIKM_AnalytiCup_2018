@@ -2,6 +2,8 @@ import torch
 import random
 import modelNet
 
+from fuzzywuzzy import fuzz
+
 # 把句子转为tensor
 def tensorFromSentence(sentence, embedding):
     tensors = []
