@@ -1,8 +1,12 @@
 import torch
+import torch.nn as nn
 import random
+
 import modelNet
+import load_data
 
 from fuzzywuzzy import fuzz
+
 
 # 把句子转为tensor
 def tensorFromSentence(sentence, embedding):
@@ -44,11 +48,10 @@ def tensorsFromPair_verify(pair, embedding):
     return (input1_tensor, input2_tensor, label)
 
 
-# 将训练数据一分为二，80%做训练，20%做验证
+# 将训练数据一分为二，按比例划分训练集和验证集
 def load_training_and_verify_pairs(pairs):
     pairs_true = []
     pairs_false = []
-    TRAINING_RATE = 0.8
     for pair in pairs:
         if pair[4] == '1':
             pairs_true.append(pair)
@@ -56,9 +59,76 @@ def load_training_and_verify_pairs(pairs):
             pairs_false.append(pair)
     random.shuffle(pairs_true)
     random.shuffle(pairs_false)
-    training_pairs = pairs_true[0:int(len(pairs_true) * TRAINING_RATE)] + pairs_false[
-                                                                          0:int(len(pairs_true) * TRAINING_RATE)]
-    test_pairs = pairs_true[int(len(pairs_true) * TRAINING_RATE):] + pairs_false[int(len(pairs_true) * TRAINING_RATE):]
+    training_pairs = pairs_true[0:int(len(pairs_true) * modelNet.TRAINING_RATE)] + pairs_false[
+                                                                                   0:int(len(
+                                                                                       pairs_true) * modelNet.TRAINING_RATE)]
+    test_pairs = pairs_true[int(len(pairs_true) * modelNet.TRAINING_RATE):] + pairs_false[int(
+        len(pairs_true) * modelNet.TRAINING_RATE):]
     random.shuffle(training_pairs)
     random.shuffle(test_pairs)
     return (training_pairs, test_pairs)
+
+
+# 将缺失的含有数字的词统一Embedding
+def embedding_missing_digit_word():
+    # 从本地加载含有数字的缺失词
+    missing_digit_vocab = load_data.loadVocab('preprocess/missing_digit_word.txt')
+    missing_digit_embedding = {}
+    word_to_embedding = load_data.loadEmbedVocab('preprocess/word_embedding.txt')
+
+    # 对该词典独立embedding
+    embedding = nn.Embedding(len(missing_digit_vocab), modelNet.EMBEDDING_SIZE)
+    for word in missing_digit_vocab:
+        idx = missing_digit_vocab[word]
+        idx = torch.tensor(idx, dtype=torch.long)
+        embed = [float('%0.4f' % num.item()) for num in embedding(idx)]  # 改变精度
+        missing_digit_embedding[word] = embed
+
+    # 保存Embedding词典
+    load_data.saveEmbedVocab(missing_digit_embedding, 'preprocess/missing_digit_embedding.txt')
+
+
+# 计算缺失的全是字母的词与词库中最近的词
+def embedding_missing_char_word():
+    missing_char_vocab = load_data.loadVocab('preprocess/missing_char_word.txt')
+    all_char_vocab = load_data.loadVocab('preprocess/database_all_word_vocab.txt')
+    all_char_list = []
+    for word in all_char_vocab:
+        all_char_list.append(word)
+
+    sim_vocab = {}
+
+    # 从词库中加载所有词
+    # with open('data/wiki.es.vec', encoding='utf-8') as all_data:
+    #     for idx, line in enumerate(all_data):
+    #         if idx is 0:
+    #             continue    # 跳过首行
+    #         items = line.strip().split()
+    #         all_char_vocab[load_data.normalizeString(items[0])] = idx
+    #
+    #     load_data.saveVocab(all_char_vocab,'preprocess/database_all_word_vocab.txt')
+    #     print('Save All vocab completed.')
+
+    # 计算缺失词最相近的词
+    with open('preprocess/sim_word.txt', encoding='utf-8', mode='wt') as file:
+        for i, word in enumerate(missing_char_vocab):
+            # print('current word: %s' % word)
+            sim_data = []
+            DIFF_WEIGHT = 2  # 长度对相似度的影响程度
+            for idx, item in enumerate(all_char_list):
+                value = fuzz.partial_ratio(word, item)
+                len_diff = abs(len(word) - len(item))
+                sim_value = value - DIFF_WEIGHT * len_diff  # 长度差距越大，相似值越小
+                sim_data.append(sim_value)
+            sim_idx = sim_data.index(max(sim_data))
+            max_value = max(sim_data)
+            # sim_word = word
+            sim_word = all_char_list[sim_idx]
+            print('word: {}, sim word: {}, sim_idx: {}, sim value: {}'.format(
+                word, sim_word, sim_idx, max_value))
+            file.write(word + ' ' + sim_word + ' ' + sim_idx + '\n')
+
+    # res1 = fuzz.ratio(w1, w2)
+    # res2 = fuzz.partial_ratio(w1, w2)
+    # res3 = fuzz.token_sort_ratio(w1, w2)
+    # res4 = fuzz.token_set_ratio(w1, w2)

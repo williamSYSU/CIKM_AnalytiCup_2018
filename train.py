@@ -4,7 +4,9 @@ import torch.optim as optim
 import torch.functional as F
 
 import preprocess
+import modelNet
 
+data = {}
 
 def beforeTrain(parameter):
     # 训练之前在验证集上的效果
@@ -29,7 +31,8 @@ def beforeTrain(parameter):
 
 def beginTrain(parameter):
     # 在训练集上训练
-    for epoch in range(10):
+    data['epoch_num'] = modelNet.EPOCH_NUM
+    for epoch in range(modelNet.EPOCH_NUM):
         loss = torch.tensor([0], dtype=torch.float)
 
         for pair in parameter.train_pairs:
@@ -45,6 +48,5 @@ def beginTrain(parameter):
             loss = parameter.loss_function(tag_scores[0].view(-1), label)
             loss.backward()
             parameter.optimizer.step()
-        if loss.item() < 0.4:
-            break
+        data['epoch' + str(epoch) + 'loss'] = loss.item()
         print('epoch: ', epoch, ', loss: ', loss.item())

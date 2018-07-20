@@ -37,7 +37,7 @@ def word2idx(sentence, vocab):
 
 # 保存词典到本地
 def saveVocab(vocab, filename, mode='wt'):
-    with open(filename, mode=mode) as file:
+    with open(filename, mode=mode, encoding='utf-8') as file:
         for key in vocab:
             file.write(key + '\n')
 
@@ -67,11 +67,11 @@ def loadData2Vocab(filename, saveName, loc1, loc2, vocab):
 
 # 保存词向量的词典
 def saveEmbedVocab(vocab, filename, mode='wt'):
-    with open(filename, mode=mode) as file:
+    with open(filename, encoding='utf-8', mode=mode) as file:
         for word in vocab:
             file.write(word + ' ')
             for embed in vocab[word]:
-                file.write(embed + ' ')
+                file.write(str(embed) + ' ')
             file.write('\n')
 
 
@@ -92,63 +92,72 @@ def loadDataPairs(filename):
     return pairs
 
 
-# 读取训练数据（西班牙源语）
-# filename = 'data/cikm_spanish_train_20180516.txt'
-# saveName = 'preprocess/spanish_train_vocab.txt'
-# loadData2Vocab(filename, saveName, loc1=0, loc2=2, vocab=spanish_train_vocab)
+# 数据预处理：加载相关数据
+def aboutData():
+    # 读取训练数据（西班牙源语）
+    filename = 'data/cikm_spanish_train_20180516.txt'
+    saveName = 'preprocess/spanish_train_vocab.txt'
+    loadData2Vocab(filename, saveName, loc1=0, loc2=2, vocab=spanish_train_vocab)
+
+    # 读取训练数据（英语源语）
+    filename = 'data/cikm_english_train_20180516.txt'
+    saveName = 'preprocess/english_train_vocab.txt'
+    loadData2Vocab(filename, saveName, loc1=1, loc2=3, vocab=english_train_vocab)
+
+    # 读取测试数据
+    filename = 'data/cikm_test_a_20180516.txt'
+    saveName = 'preprocess/spanish_test_vocab.txt'
+    loadData2Vocab(filename, saveName, loc1=0, loc2=1, vocab=spanish_test_vocab)
 
 
-# 读取训练数据（英语源语）
-# filename = 'data/cikm_english_train_20180516.txt'
-# saveName = 'preprocess/english_train_vocab.txt'
-# loadData2Vocab(filename, saveName, loc1=1, loc2=3, vocab=english_train_vocab)
+# 数据预处理：合并相关Vocab
+def aboutVocab():
+    word_vocab = loadVocab('preprocess/word_vocab.txt')
 
-# 读取测试数据
-# filename = 'data/cikm_test_a_20180516.txt'
-# saveName = 'preprocess/spanish_test_vocab.txt'
-# loadData2Vocab(filename, saveName, loc1=0, loc2=1, vocab=spanish_test_vocab)
-
-
-word_vocab = loadVocab('preprocess/word_vocab.txt')
-
-word_to_embedding = {}
-
-# 合并所有vocab
-# for word in spanish_train_vocab:
-#     if word not in word_vocab:
-#         word_vocab[word]=len(word_vocab)
-# for word in spanish_test_vocab:
-#     if word not in word_vocab:
-#         word_vocab[word]=len(word_vocab)
-# for word in english_train_vocab:
-#     if word not in word_vocab:
-#         word_vocab[word]=len(word_vocab)
-# saveVocab(word_vocab,'preprocess/word_vocab.txt')
-# 合并end
-
-# 保存每个词的对应词向量
-# for word in word_vocab:
-#     print('current word: ', word)
-#     with open('data/wiki.es.vec', encoding='utf-8') as embedding:
-#         for line in embedding:
-#             items = line.strip().split()
-#             if word == normalizeString(items[0]):
-#                 word_to_embedding[word] = items[1:]
-#                 print('len:',len(items[1:]))
-#                 break
-# saveEmbedVocab(word_to_embedding, 'preprocess/word_embedding.txt')
+    # 合并所有vocab
+    for word in spanish_train_vocab:
+        if word not in word_vocab:
+            word_vocab[word] = len(word_vocab)
+    for word in spanish_test_vocab:
+        if word not in word_vocab:
+            word_vocab[word] = len(word_vocab)
+    for word in english_train_vocab:
+        if word not in word_vocab:
+            word_vocab[word] = len(word_vocab)
+    saveVocab(word_vocab, 'preprocess/word_vocab.txt')
+    # 合并end
 
 
-# 测试加载embedding
-# filename = 'preprocess/word_embedding.txt'
-# word_embedding = loadEmbedding(filename)
-# for idx, word in enumerate(word_embedding):
-#     # if idx is 3:
-#     #     break
-#     embed = word_embedding[word]
-#     print(len(embed))
-#     if len(embed) < 299:
-#         print('unmatch word: ', word, 'embedding: ', embed, 'len: ', len(embed))
-# print('word: ', word)
-# print('embedding: ', word_embedding[word])
-# print('size of embedding: ', len(word_embedding[word]))
+# 数据预处理：预先保存词向量
+def saveAllEmbeddingDemo():
+    # 保存每个词的对应词向量
+    word_vocab = loadVocab('preprocess/word_vocab.txt')
+    word_to_embedding = {}
+
+    for word in word_vocab:
+        print('current word: ', word)
+        with open('data/wiki.es.vec', encoding='utf-8') as embedding:
+            for line in embedding:
+                items = line.strip().split()
+                if word == normalizeString(items[0]):
+                    word_to_embedding[word] = items[1:]
+                    print('len:', len(items[1:]))
+                    break
+    saveEmbedVocab(word_to_embedding, 'preprocess/word_embedding.txt')
+
+
+# 测试：加载词向量是否有问题
+def testLoadEmbedding():
+    # 测试加载embedding
+    filename = 'preprocess/word_embedding.txt'
+    word_to_embedding = loadEmbedVocab(filename)
+    for idx, word in enumerate(word_to_embedding):
+        # if idx is 3:
+        #     break
+        embed = word_to_embedding[word]
+        print(len(embed))
+        if len(embed) < 299:
+            print('unmatch word: ', word, 'embedding: ', embed, 'len: ', len(embed))
+    print('word: ', word)
+    print('embedding: ', word_to_embedding[word])
+    print('size of embedding: ', len(word_to_embedding[word]))

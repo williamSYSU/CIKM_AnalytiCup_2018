@@ -30,22 +30,43 @@ class PARAMETER():
 
         self.model = modelNet.Bi_LSTM()
         self.loss_function = nn.BCELoss()
-        self.optimizer = optim.SGD(self.model.parameters(), lr=0.05)
+
+        self.optimizer = optim.SGD(self.model.parameters(), lr=modelNet.LEARNING_RATE)
+
+
+def locate_missing_word():
+    word_vocab = load_data.loadVocab('preprocess/word_vocab.txt')
+    print('len of vocab: ', len(word_vocab))
+    print('len of dict: ', len(lstm.word_to_embedding))
+    print('missing: ', len(word_vocab) - len(lstm.word_to_embedding))
+
+    missing_char_vocab = []
+    missing_digit_vocab = []
+    with open('preprocess/all_missing_word.txt', encoding='utf-8', mode='wt') as file:
+        for word in word_vocab:
+            if word not in lstm.word_to_embedding.keys():
+                file.write(word + '\n')
+                res = re.search(r'\d', word)
+                if bool(res):
+                    missing_digit_vocab.append(word)
+                else:
+                    missing_char_vocab.append(word)
+
+    with open('preprocess/missing_digit_word.txt', encoding='utf-8', mode='wt') as file:
+        print('len of missing digit: ', len(missing_digit_vocab))
+        for word in missing_digit_vocab:
+            file.write(word + '\n')
+
+    with open('preprocess/missing_char_word.txt', encoding='utf-8', mode='wt') as file:
+        print('len of missing char: ', len(missing_char_vocab))
+        for word in missing_char_vocab:
+            file.write(word + '\n')
 
 
 if __name__ == '__main__':
     lstm = PARAMETER()
 
-    word_vocab = load_data.loadVocab('preprocess/word_vocab.txt')
-    print('len of vocab: ', len(word_vocab))
-    print('len of dict: ', len(lstm.word_to_embedding))
-    print('missing: ', len(word_vocab) - len(lstm.word_to_embedding))
-    with open('preprocess/missing_word.txt', encoding='utf-8', mode='wt') as file:
-        for word in word_vocab:
-            if word not in lstm.word_to_embedding.keys():
-                # if word[0] >= '0' and word[0] <= '9':
-                #     continue
-                file.write(word + '\n')
+    preprocess.embedding_missing_char_word()
 
     # # 显示训练前的结果
     # train.beforeTrain(parameter=lstm)

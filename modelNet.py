@@ -4,7 +4,10 @@ import torch.nn as nn
 EMBEDDING_SIZE = 300
 HIDDEN_SIZE = 200
 TARGET_SIZE = 2
-
+DROPOUT_RATE = 0.05
+LEARNING_RATE = 0.01
+TRAINING_RATE = 0.8
+EPOCH_NUM = 10
 
 # 两个lstm网络模型
 class Bi_LSTM(nn.Module):
@@ -15,7 +18,9 @@ class Bi_LSTM(nn.Module):
         self.dense1 = nn.Linear(8 * HIDDEN_SIZE, 400)
         self.dense2 = nn.Linear(400, 100)
         self.dense3 = nn.Linear(100, TARGET_SIZE)
-        self.dropout = nn.Dropout(0.05)
+
+        self.dropout = nn.Dropout(DROPOUT_RATE)
+
         self.stm = nn.Softmax(dim=0)
 
     def forward(self, input1, input2):
