@@ -30,3 +30,7 @@ def verifyAfterTrainning(parameter):
             tag_scores = parameter.model(test_pair[0][0], test_pair[0][1])
             with open("test_result.txt", 'a') as f:
                 f.write(str(tag_scores[0].item()) + "\n")
+
+# TODO: save model
+
+# TODO: plot loss

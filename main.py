@@ -21,18 +21,27 @@ class PARAMETER():
 
         # 加载数据对集合
         self.train_pairs = load_data.loadDataPairs('data/cikm_spanish_train_20180516.txt')
+        self.english_train_pairs = load_data.loadDataPairs('data/cikm_spanish_train_20180516.txt')
         self.test_pairs = load_data.loadDataPairs('data/cikm_test_a_20180516.txt')
 
         # 划分训练集和验证集
         self.train_pairs, self.verify_pairs = preprocess.load_training_and_verify_pairs(pairs=self.train_pairs)
+        # self.train_pairs = self.train_pairs + self.english_train_pairs
 
         self.model = modelNet.Bi_LSTM()
         self.loss_function = nn.BCELoss()
-        self.optimizer = optim.SGD(self.model.parameters(), lr=0.01)
+        self.optimizer = optim.SGD(self.model.parameters(), lr=0.05)
 
 
 if __name__ == '__main__':
     lstm = PARAMETER()
+
+    # for idx, word in enumerate(lstm.word_to_embedding):
+    #     if idx is 3:
+    #         break
+    #     print(lstm.word_to_embedding[word])
+    #     print('len: ',len(lstm.word_to_embedding[word]))
+
     # 显示训练前的结果
     train.beforeTrain(parameter=lstm)
 

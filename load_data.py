@@ -5,8 +5,9 @@
 
 import unicodedata
 import re
+import torch
+import modelNet
 
-EMBEDDING_SIZE = 300
 spanish_train_vocab = {}
 english_train_vocab = {}
 spanish_test_vocab = {}
@@ -80,7 +81,7 @@ def loadEmbedVocab(filename, mode='r'):
     with open(filename, encoding='utf-8', mode=mode) as file:
         for line in file:
             items = line.strip().split()
-            embedding[items[0]] = items[1:]
+            embedding[items[0]] = torch.tensor([float(item) for item in items[1:modelNet.EMBEDDING_SIZE + 1]])
         return embedding
 
 
