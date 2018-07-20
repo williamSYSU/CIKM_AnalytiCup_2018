@@ -63,14 +63,26 @@ def loadData2Vocab(filename, saveName, loc1, loc2, vocab):
         saveVocab(vocab, saveName)
         print('Save vocab completed!')
 
+
 # 保存词向量的词典
-def saveEembedVocab(vocab, filename, mode='wt'):
+def saveEmbedVocab(vocab, filename, mode='wt'):
     with open(filename, mode=mode) as file:
         for word in vocab:
             file.write(word + ' ')
             for embed in vocab[word]:
                 file.write(embed + ' ')
             file.write('\n')
+
+
+# 从本地加载embedding
+def loadEmbedding(filename, mode='r'):
+    embedding = {}
+    with open(filename, encoding='utf-8', mode=mode) as file:
+        for line in file:
+            items = line.strip().split()
+            embedding[items[0]] = items[1:]
+        return embedding
+
 
 # 读取训练数据（西班牙源语）
 filename = 'data/cikm_spanish_train_20180516.txt'
@@ -111,17 +123,29 @@ word_to_embedding = {}
 # 合并end
 
 # 保存每个词的对应词向量
-for word in word_vocab:
-    print('current word: ', word)
-    with open('data/wiki.es.vec', encoding='utf-8') as embedding:
-        for line in embedding:
-            items = line.strip().split()
-            if word == normalizeString(items[0]):
-                word_to_embedding[word] = items[1:-1]
-                print('word: ', items[0])
-                # print('embedding: ', items[1:-1])
-                break
+# for word in word_vocab:
+#     print('current word: ', word)
+#     with open('data/wiki.es.vec', encoding='utf-8') as embedding:
+#         for line in embedding:
+#             items = line.strip().split()
+#             if word == normalizeString(items[0]):
+#                 word_to_embedding[word] = items[1:]
+#                 # print('len:',len(items[1:]))
+#                 break
+#
+# saveEmbedVocab(word_to_embedding, 'preprocess/word_embedding.txt')
 
-saveEembedVocab(word_to_embedding, 'preprocess/word_embedding.txt')
 
-print(normalizeString('¿Cómo cambio mi dirección de email?'))
+# 测试加载embedding
+# filename = 'preprocess/word_embedding.txt'
+# word_embedding = loadEmbedding(filename)
+# for idx, word in enumerate(word_embedding):
+#     # if idx is 3:
+#     #     break
+#     embed = word_embedding[word]
+#     print(len(embed))
+#     if len(embed) < 299:
+#         print('unmatch word: ', word, 'embedding: ', embed, 'len: ', len(embed))
+# print('word: ', word)
+# print('embedding: ', word_embedding[word])
+# print('size of embedding: ', len(word_embedding[word]))
