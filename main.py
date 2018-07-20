@@ -11,6 +11,7 @@ import load_data
 import preprocess
 import train
 import modle
+import test
 
 # load word embedding from .txt file
 embedding_filename = 'preprocess/word_embedding.txt'
@@ -29,29 +30,11 @@ lstm = modle.Bi_LSTM()
 loss_function = nn.BCELoss()
 optimizer = optim.SGD(lstm.parameters(), lr=0.01)
 
+# 显示训练前的结果
 train.beforeTrain(model=lstm, loss_function=loss_function, optimizer=optimizer)
+
+# 开始训练模型
 train.beginTrain(model=lstm, loss_function=loss_function, optimizer=optimizer)
 
-
-# 训练之后在验证集上的效果
-with torch.no_grad():
-    print("after learning:")
-    sum_loss = 0
-    sum = 0
-    for pair in verify_pairs:
-        sum += 1
-        verify_pair = [preprocess.tensorsFromPair_verify(pair, word_to_embedding)]
-        tag_scores = lstm(verify_pair[0][0], verify_pair[0][1])
-        label = verify_pair[0][2]
-        if label == '1':
-            label = torch.tensor([1], dtype=torch.float)
-        else:
-            label = torch.tensor([0], dtype=torch.float)
-        loss = loss_function(tag_scores[0].view(-1), label)
-        sum_loss += loss
-    print("avg_loss:", float(sum_loss / sum))
-    for pair in test_pairs:
-        test_pair = [preprocess.tensorsFromPair_test(pair, word_to_embedding)]
-        tag_scores = lstm(test_pair[0][0], test_pair[0][1])
-        with open("test_result.txt", 'a') as f:
-            f.write(str(tag_scores[0].item()) + "\n")
+# 显示训练后在验证集上的结果
+test.verifyAfterTrainning(model=lstm, loss_function=loss_function, optimizer=optimizer)

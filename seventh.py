@@ -16,31 +16,6 @@ def tensorFromSentence(sentence, embedding):
     return tensor
 
 
-# 将数据对转化为相应的tensor
-def tensorsFromPair(pair, embedding):
-    input1_tensor = tensorFromSentence(pair[0], embedding)
-    input2_tensor = tensorFromSentence(pair[2], embedding)
-    # input_tensor=torch.cat((input1_tensor,input2_tensor),dim=0)
-    label = pair[4]
-    return (input1_tensor, input2_tensor, label)
-
-
-# 从数据对中选出对应西班牙语的数据对
-def tensorsFromPair_test(pair, embedding):
-    input1_tensor = tensorFromSentence(pair[0], embedding)
-    input2_tensor = tensorFromSentence(pair[1], embedding)
-    # input_tensor = torch.cat((input1_tensor, input2_tensor), dim=0)
-    return (input1_tensor, input2_tensor)
-
-
-def tensorsFromPair_verify(pair, embedding):
-    input1_tensor = tensorFromSentence(pair[1], embedding)
-    input2_tensor = tensorFromSentence(pair[3], embedding)
-    # input_tensor = torch.cat((input1_tensor, input2_tensor), dim=0)
-    label = pair[4]
-    return (input1_tensor, input1_tensor, label)
-
-
 # 将训练数据一分为二，80%做训练，20%做验证
 def training_test(pairs):
     pairs_true = []
@@ -57,3 +32,29 @@ def training_test(pairs):
     random.shuffle(training_pairs)
     random.shuffle(test_pairs)
     return (training_pairs, test_pairs)
+
+
+# 将训练数据对转化为相应的tensor
+def tensorsFromPair(pair):
+    input1_tensor = tensorFromSentence(pair[0])
+    input2_tensor = tensorFromSentence(pair[2])
+    # input_tensor=torch.cat((input1_tensor,input2_tensor),dim=0)
+    label = pair[4]
+    return (input1_tensor, input2_tensor, label)
+
+
+# 从测试数据对中选出对应西班牙语的数据对
+def tensorsFromPair_test(pair):
+    input1_tensor = tensorFromSentence(pair[0])
+    input2_tensor = tensorFromSentence(pair[1])
+    # input_tensor = torch.cat((input1_tensor, input2_tensor), dim=0)
+    return (input1_tensor, input2_tensor)
+
+
+# 从验证数据对中选出对应西班牙语的数据对
+def tensorsFromPair_verify(pair):
+    input1_tensor = tensorFromSentence(pair[0])
+    input2_tensor = tensorFromSentence(pair[2])
+    # input_tensor = torch.cat((input1_tensor, input2_tensor), dim=0)
+    label = pair[4]
+    return (input1_tensor, input1_tensor, label)

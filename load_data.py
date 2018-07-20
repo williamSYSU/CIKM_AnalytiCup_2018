@@ -91,6 +91,10 @@ def loadDataPairs(filename):
     return pairs
 
 
+# TODO:处理匹配不到的词
+def initMissingEmbedding():
+    pass
+
 # 读取训练数据（西班牙源语）
 # filename = 'data/cikm_spanish_train_20180516.txt'
 # saveName = 'preprocess/spanish_train_vocab.txt'
