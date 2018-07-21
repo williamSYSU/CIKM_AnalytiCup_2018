@@ -10,6 +10,7 @@ TRAINING_RATE = 0.8
 EPOCH_NUM = 10
 
 TEST_TAT = 2048
+MONSTER_TAG = 100
 
 # 两个lstm网络模型
 class Bi_LSTM(nn.Module):
