@@ -66,7 +66,7 @@ def locate_missing_word():
 if __name__ == '__main__':
     lstm = PARAMETER()
 
-    preprocess.embedding_missing_char_word()
+    preprocess.get_sim_word_embedding()
 
     # # 显示训练前的结果
     # train.beforeTrain(parameter=lstm)

@@ -142,13 +142,17 @@ def get_sim_word_embedding():
     with open('preprocess/sim_word.txt', encoding='utf-8', mode='r') as file:
         for line in file:
             items = line.strip().split()
-            sim_word[items[0]] = items[2]
+            sim_word[items[0]] = items[1]
 
     # 从词库中提取对应词向量
     for idx, word in enumerate(sim_word):
-        line = linecache.getline('data/wiki.es.vec', int(sim_word[word]) + 4)
-        # line = linecache.getline('data/wiki.es.vec', int(2))
-        print('word: {}, sim word: {}'.format(word, line.strip().split()[0]))
-        sim_word_embedding[word] = line.strip().split()[1:]
+        print('current word: {}'.format(word))
+        with open('data/wiki.es.vec', encoding='utf-8') as data:
+            for line in data:
+                items = line.strip().split()
+                if sim_word[word] == items[0]:
+                    print('sim word: {}'.format(items[0]))
+                    sim_word_embedding[word] = items[1:]
+                    break
 
     load_data.saveEmbedVocab(sim_word_embedding, 'preprocess/sim_word_embedding.txt')
