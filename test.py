@@ -58,14 +58,15 @@ def verifyAfterTrainning(parameter):
         for pair in parameter.test_pairs:
             test_pair = [preprocess.tensorsFromPair_test(pair, parameter.word_to_embedding)]
             tag_scores = parameter.model(test_pair[0][0], test_pair[0][1])
-            with open("Result/test_result_" + str(avg_loss) + ".txt", 'a') as f:
+            with open("Result/test_result_" + str(modelNet.ENGLISH_TAG) + "_" + str(avg_loss) + ".txt", 'a') as f:
                 f.write(str(tag_scores[0].item()) + "\n")
-        path = 'save_model/model_' + str(avg_loss) + '.pkl'
+        path = 'save_model/model_' + str(modelNet.ENGLISH_TAG) + "_" + str(avg_loss) + '.pkl'
         torch.save(parameter.model, path)
-        with open("save_model/data_" + str(avg_loss) + ".txt", 'w') as f:
+        with open("save_model/data_" + str(modelNet.ENGLISH_TAG) + "_" + str(avg_loss) + ".txt", 'w') as f:
+            f.write("English tag:" + str(modelNet.ENGLISH_TAG) + "\n")
             f.write("learning rate:" + str(modelNet.LEARNING_RATE) + "\n")
             f.write("dropout rate:" + str(modelNet.DROPOUT_RATE) + "\n")
-            f.write("training rate:" + str(modelNet.TRAINING_RATE) + "\n")
+            f.write("training rate:" + str(modelNet.TRAINTEST_RATE) + "\n")
             f.write("epoch num:" + str(train.data['epoch_num']) + "\n")
             for i in range(train.data['epoch_num']):
                 f.write("epoch " + str(i) + "  loss:" + str(train.data['epoch' + str(i) + 'loss']) + "\n")
