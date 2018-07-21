@@ -9,7 +9,7 @@ LEARNING_RATE = 0.01
 EPOCH_NUM = 10
 
 ENGLISH_TAG = 0  # 是否加入英语原语训练集，0：不加入；1：加入
-TRAINING_RATE = 0.8  # 划分训练集和验证集的比例
+TRAINTEST_RATE = 0.8  # 划分训练集和验证集的比例
 
 
 # 两个lstm网络模型
