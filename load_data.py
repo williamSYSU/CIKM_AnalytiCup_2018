@@ -3,9 +3,11 @@
 # 1、从词向量库中读取数据，根据训练集和测试集中的词，取该词的词向量
 # 2、保存全部词的词向量
 
-import unicodedata
 import re
+import unicodedata
+
 import torch
+
 import modelNet
 
 spanish_train_vocab = {}

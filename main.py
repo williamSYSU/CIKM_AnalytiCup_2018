@@ -1,23 +1,18 @@
-import unicodedata
 import re
-import random
 
-import torch
 import torch.nn as nn
 import torch.optim as optim
-import torch.nn.functional as F
 
 import load_data
-import preprocess
-import train
 import modelNet
-import test
+import preprocess
 
 
 class PARAMETER():
     def __init__(self):
         # 从本地加载word embedding词典
-        self.word_to_embedding = load_data.loadEmbedVocab('preprocess/word_embedding.txt')
+        # self.word_to_embedding = load_data.loadEmbedVocab('preprocess/word_embedding.txt')
+        self.word_to_embedding = preprocess.get_final_word_to_embedding()
 
         # 加载数据对集合
         self.train_pairs = load_data.loadDataPairs('data/cikm_spanish_train_20180516.txt')
