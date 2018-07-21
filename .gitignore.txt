@@ -1,2 +1,5 @@
-/.idea
+/.idea/
 *.vec
+/Result/
+/save_model/
+/__pycache__/
