@@ -1,12 +1,10 @@
-import torch
-import torch.nn as nn
 import random
 
-import modelNet
-import load_data
-import linecache
+import torch
+import torch.nn as nn
 
-from fuzzywuzzy import fuzz
+import load_data
+import modelNet
 
 
 # 把句子转为tensor
