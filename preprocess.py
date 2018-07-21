@@ -144,13 +144,34 @@ def get_sim_word_embedding():
 
     # 从词库中提取对应词向量
     for idx, word in enumerate(sim_word):
-        print('current word: {}'.format(word))
+        print('{} of {}===current word: {}'.format(idx, len(sim_word), word))
         with open('data/wiki.es.vec', encoding='utf-8') as data:
             for line in data:
                 items = line.strip().split()
-                if sim_word[word] == items[0]:
+                if sim_word[word] == load_data.normalizeString(items[0]):
                     print('sim word: {}'.format(items[0]))
                     sim_word_embedding[word] = items[1:]
                     break
 
     load_data.saveEmbedVocab(sim_word_embedding, 'preprocess/sim_word_embedding.txt')
+
+
+# TODO: 合并所有的词向量，返回所有出现词的词向量
+def get_final_word_to_embedding():
+    word_to_embedding = load_data.loadEmbedVocab('preprocess/word_embedding.txt')
+
+    dim = 0
+    # 加入缺失词的相似词词向量
+    sim_word_embedding = load_data.loadEmbedVocab('preprocess/sim_word_embedding.txt')
+    missing_digit_embedding = load_data.loadEmbedVocab('preprocess/missing_digit_embedding.txt')
+
+    for word in sim_word_embedding:
+        word_to_embedding[word] = sim_word_embedding[word]
+    for word in missing_digit_embedding:
+        word_to_embedding[word] = missing_digit_embedding[word]
+
+    # word_vocab = load_data.loadVocab('preprocess/word_vocab.txt')
+    # word_embedding = load_data.loadEmbedVocab('preprocess/word_embedding.txt')
+    # print('total len of vocab: {},len of sim: {}, len of digit: {}'.format(
+    #     len(word_vocab), len(sim_word_embedding), len(missing_digit_embedding)))
+    return word_to_embedding
