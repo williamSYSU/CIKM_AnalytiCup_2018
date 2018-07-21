@@ -5,6 +5,7 @@ import torch.nn as nn
 
 import load_data
 import modelNet
+from fuzzywuzzy import fuzz
 
 
 # 把句子转为tensor
@@ -123,7 +124,7 @@ def embedding_missing_char_word():
     #         sim_word = all_char_list[sim_idx]
     #         print('word: {}, sim word: {}, sim_idx: {}, sim value: {}'.format(
     #             word, sim_word, sim_idx, max_value))
-    #         file.write(word + ' ' + sim_word + ' ' + str(sim_idx) + '\n')
+    #         file.write(word + ' ' + sim_word + '\n')
 
     # res1 = fuzz.ratio(w1, w2)
     # res2 = fuzz.partial_ratio(w1, w2)
@@ -144,7 +145,7 @@ def get_sim_word_embedding():
 
     # 从词库中提取对应词向量
     for idx, word in enumerate(sim_word):
-        print('{} of {}===current word: {}'.format(idx, len(sim_word), word))
+        print('{} of {}  ===  current word: {}'.format(idx, len(sim_word), word))
         with open('data/wiki.es.vec', encoding='utf-8') as data:
             for line in data:
                 items = line.strip().split()
@@ -160,7 +161,6 @@ def get_sim_word_embedding():
 def get_final_word_to_embedding():
     word_to_embedding = load_data.loadEmbedVocab('preprocess/word_embedding.txt')
 
-    dim = 0
     # 加入缺失词的相似词词向量
     sim_word_embedding = load_data.loadEmbedVocab('preprocess/sim_word_embedding.txt')
     missing_digit_embedding = load_data.loadEmbedVocab('preprocess/missing_digit_embedding.txt')
@@ -170,8 +170,4 @@ def get_final_word_to_embedding():
     for word in missing_digit_embedding:
         word_to_embedding[word] = missing_digit_embedding[word]
 
-    # word_vocab = load_data.loadVocab('preprocess/word_vocab.txt')
-    # word_embedding = load_data.loadEmbedVocab('preprocess/word_embedding.txt')
-    # print('total len of vocab: {},len of sim: {}, len of digit: {}'.format(
-    #     len(word_vocab), len(sim_word_embedding), len(missing_digit_embedding)))
     return word_to_embedding

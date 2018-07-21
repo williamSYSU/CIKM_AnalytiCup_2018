@@ -6,6 +6,8 @@ import torch.optim as optim
 import load_data
 import modelNet
 import preprocess
+import train
+import test
 
 
 class PARAMETER():
@@ -61,13 +63,13 @@ def locate_missing_word():
 if __name__ == '__main__':
     lstm = PARAMETER()
 
-    preprocess.get_sim_word_embedding()
+    # preprocess.get_final_word_to_embedding()
 
-    # # 显示训练前的结果
-    # train.beforeTrain(parameter=lstm)
-    #
-    # # 开始训练模型
-    # train.beginTrain(parameter=lstm)
-    #
-    # # 显示训练后在验证集上的结果
-    # test.verifyAfterTrainning(parameter=lstm)
+    # 显示训练前的结果
+    train.beforeTrain(parameter=lstm)
+
+    # 开始训练模型
+    train.beginTrain(parameter=lstm)
+
+    # 显示训练后在验证集上的结果
+    test.verifyAfterTrainning(parameter=lstm)
