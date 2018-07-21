@@ -9,6 +9,8 @@ LEARNING_RATE = 0.01
 TRAINING_RATE = 0.8
 EPOCH_NUM = 10
 
+TEST_TAT = 999
+
 # 两个lstm网络模型
 class Bi_LSTM(nn.Module):
     def __init__(self):
