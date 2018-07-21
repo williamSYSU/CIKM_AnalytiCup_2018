@@ -6,8 +6,8 @@ import torch.optim as optim
 import load_data
 import modelNet
 import preprocess
-import train
 import test
+import train
 
 
 class PARAMETER():
@@ -23,7 +23,9 @@ class PARAMETER():
 
         # 划分训练集和验证集
         self.train_pairs, self.verify_pairs = preprocess.load_training_and_verify_pairs(pairs=self.train_pairs)
-        # self.train_pairs = self.train_pairs + self.english_train_pairs
+
+        if modelNet.ENGLISH_TAG is 1:
+            self.train_pairs = self.train_pairs + self.english_train_pairs
 
         self.model = modelNet.Bi_LSTM()
         self.loss_function = nn.BCELoss()
