@@ -4,6 +4,7 @@ import random
 
 import modelNet
 import load_data
+import linecache
 
 from fuzzywuzzy import fuzz
 
@@ -81,7 +82,7 @@ def embedding_missing_digit_word():
     for word in missing_digit_vocab:
         idx = missing_digit_vocab[word]
         idx = torch.tensor(idx, dtype=torch.long)
-        embed = [float('%0.4f' % num.item()) for num in embedding(idx)]  # 改变精度
+        embed = [float('%0.6f' % num.item()) for num in embedding(idx)]  # 改变精度
         missing_digit_embedding[word] = embed
 
     # 保存Embedding词典
@@ -92,11 +93,10 @@ def embedding_missing_digit_word():
 def embedding_missing_char_word():
     missing_char_vocab = load_data.loadVocab('preprocess/missing_char_word.txt')
     all_char_vocab = load_data.loadVocab('preprocess/database_all_word_vocab.txt')
+    # all_char_vocab = {}
     all_char_list = []
     for word in all_char_vocab:
         all_char_list.append(word)
-
-    sim_vocab = {}
 
     # 从词库中加载所有词
     # with open('data/wiki.es.vec', encoding='utf-8') as all_data:
@@ -110,25 +110,45 @@ def embedding_missing_char_word():
     #     print('Save All vocab completed.')
 
     # 计算缺失词最相近的词
-    with open('preprocess/sim_word.txt', encoding='utf-8', mode='wt') as file:
-        for i, word in enumerate(missing_char_vocab):
-            # print('current word: %s' % word)
-            sim_data = []
-            DIFF_WEIGHT = 2  # 长度对相似度的影响程度
-            for idx, item in enumerate(all_char_list):
-                value = fuzz.partial_ratio(word, item)
-                len_diff = abs(len(word) - len(item))
-                sim_value = value - DIFF_WEIGHT * len_diff  # 长度差距越大，相似值越小
-                sim_data.append(sim_value)
-            sim_idx = sim_data.index(max(sim_data))
-            max_value = max(sim_data)
-            # sim_word = word
-            sim_word = all_char_list[sim_idx]
-            print('word: {}, sim word: {}, sim_idx: {}, sim value: {}'.format(
-                word, sim_word, sim_idx, max_value))
-            file.write(word + ' ' + sim_word + ' ' + sim_idx + '\n')
+    # with open('preprocess/sim_word.txt', encoding='utf-8', mode='wt') as file:
+    #     for i, word in enumerate(missing_char_vocab):
+    #         # print('current word: %s' % word)
+    #         sim_data = []
+    #         DIFF_WEIGHT = 2  # 长度对相似度的影响程度
+    #         for idx, item in enumerate(all_char_list):
+    #             value = fuzz.partial_ratio(word, item)
+    #             len_diff = abs(len(word) - len(item))
+    #             sim_value = value - DIFF_WEIGHT * len_diff  # 长度差距越大，相似值越小
+    #             sim_data.append(sim_value)
+    #         sim_idx = sim_data.index(max(sim_data))
+    #         max_value = max(sim_data)
+    #         sim_word = all_char_list[sim_idx]
+    #         print('word: {}, sim word: {}, sim_idx: {}, sim value: {}'.format(
+    #             word, sim_word, sim_idx, max_value))
+    #         file.write(word + ' ' + sim_word + ' ' + str(sim_idx) + '\n')
 
     # res1 = fuzz.ratio(w1, w2)
     # res2 = fuzz.partial_ratio(w1, w2)
     # res3 = fuzz.token_sort_ratio(w1, w2)
     # res4 = fuzz.token_set_ratio(w1, w2)
+
+
+# 根据找到的相似词取词库中的词向量
+def get_sim_word_embedding():
+    sim_word = {}  # 相似词的对应行号词典
+    sim_word_embedding = {}  # 相似词的对应词向量词典
+
+    # 读取缺失词的及其相似词在词库中的行号
+    with open('preprocess/sim_word.txt', encoding='utf-8', mode='r') as file:
+        for line in file:
+            items = line.strip().split()
+            sim_word[items[0]] = items[2]
+
+    # 从词库中提取对应词向量
+    for idx, word in enumerate(sim_word):
+        line = linecache.getline('data/wiki.es.vec', int(sim_word[word]) + 4)
+        # line = linecache.getline('data/wiki.es.vec', int(2))
+        print('word: {}, sim word: {}'.format(word, line.strip().split()[0]))
+        sim_word_embedding[word] = line.strip().split()[1:]
+
+    load_data.saveEmbedVocab(sim_word_embedding, 'preprocess/sim_word_embedding.txt')
