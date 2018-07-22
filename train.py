@@ -13,7 +13,6 @@ def beforeTrain(parameter):
         sum = 0
         for pair in parameter.verify_pairs:
             sum += 1
-            # print('pair: ',pair)
             verify_pair = [preprocess.tensorsFromPair_verify(pair, parameter.word_to_embedding)]
             tag_scores = parameter.model(verify_pair[0][0], verify_pair[0][1])
             label = verify_pair[0][2]
@@ -35,7 +34,6 @@ def beginTrain(parameter):
         for pair in parameter.train_pairs:
             parameter.model.zero_grad()
             training_pair = [preprocess.tensorsFromPair(pair, parameter.word_to_embedding)]
-            # print (training_pair)
             tag_scores = parameter.model(training_pair[0][0], training_pair[0][1])
             label = training_pair[0][2]
 
@@ -45,9 +43,6 @@ def beginTrain(parameter):
             else:
                 label = torch.tensor([0], dtype=torch.float)
             loss = parameter.loss_function(tag_scores[0].view(-1), label)
-            # loss = parameter.loss_function(tag_scores, label)
-            # print('tag_scores: ', tag_scores[0])
-            # print('label: ',label)
             loss.backward()
             parameter.optimizer.step()
         data['epoch' + str(epoch) + 'loss'] = loss.item()
