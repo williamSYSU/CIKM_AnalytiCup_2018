@@ -59,11 +59,11 @@ def load_training_and_verify_pairs(pairs):
             pairs_false.append(pair)
     random.shuffle(pairs_true)
     random.shuffle(pairs_false)
-    training_pairs = pairs_true[0:int(len(pairs_true) * modelNet.TRAINING_RATE)] + pairs_false[
+    training_pairs = pairs_true[0:int(len(pairs_true) * modelNet.TRAINTEST_RATE)] + pairs_false[
                                                                                    0:int(len(
-                                                                                       pairs_true) * modelNet.TRAINING_RATE)]
-    test_pairs = pairs_true[int(len(pairs_true) * modelNet.TRAINING_RATE):] + pairs_false[int(
-        len(pairs_true) * modelNet.TRAINING_RATE):]
+                                                                                       pairs_true) * modelNet.TRAINTEST_RATE)]
+    test_pairs = pairs_true[int(len(pairs_true) * modelNet.TRAINTEST_RATE):] + pairs_false[int(
+        len(pairs_true) * modelNet.TRAINTEST_RATE):]
     random.shuffle(training_pairs)
     random.shuffle(test_pairs)
     return (training_pairs, test_pairs)

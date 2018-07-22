@@ -38,11 +38,16 @@ def beginTrain(parameter):
             # print (training_pair)
             tag_scores = parameter.model(training_pair[0][0], training_pair[0][1])
             label = training_pair[0][2]
+
+            # TODO: 确定优化目标
             if label == '1':
                 label = torch.tensor([1], dtype=torch.float)
             else:
                 label = torch.tensor([0], dtype=torch.float)
             loss = parameter.loss_function(tag_scores[0].view(-1), label)
+            # loss = parameter.loss_function(tag_scores, label)
+            # print('tag_scores: ', tag_scores[0])
+            # print('label: ',label)
             loss.backward()
             parameter.optimizer.step()
         data['epoch' + str(epoch) + 'loss'] = loss.item()
