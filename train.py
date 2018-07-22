@@ -33,9 +33,10 @@ def beginTrain(parameter):
 
         for pair in parameter.train_pairs:
             parameter.model.zero_grad()
-            training_pair = [preprocess.tensorsFromPair(pair, parameter.word_to_embedding)]
-            tag_scores = parameter.model(training_pair[0][0], training_pair[0][1])
-            label = training_pair[0][2]
+            training_pair = preprocess.tensorsFromPair(pair, parameter.word_to_embedding)
+            tag_scores = parameter.model(training_pair[0], training_pair[1])
+            label = training_pair[2]
+
 
             # TODO: 确定优化目标
             if label == '1':

@@ -29,7 +29,7 @@ def tensorsFromPair(pair, embedding):
     input2_tensor = tensorFromSentence(pair[2], embedding)
     # input_tensor=torch.cat((input1_tensor,input2_tensor),dim=0)
     label = pair[4]
-    return (input1_tensor, input2_tensor, label)
+    return input1_tensor, input2_tensor, label
 
 
 # 从数据对中选出对应西班牙语的数据对
@@ -37,7 +37,7 @@ def tensorsFromPair_test(pair, embedding):
     input1_tensor = tensorFromSentence(pair[0], embedding)
     input2_tensor = tensorFromSentence(pair[1], embedding)
     # input_tensor = torch.cat((input1_tensor, input2_tensor), dim=0)
-    return (input1_tensor, input2_tensor)
+    return input1_tensor, input2_tensor
 
 
 def tensorsFromPair_verify(pair, embedding):
@@ -45,7 +45,7 @@ def tensorsFromPair_verify(pair, embedding):
     input2_tensor = tensorFromSentence(pair[2], embedding)
     # input_tensor = torch.cat((input1_tensor, input2_tensor), dim=0)
     label = pair[4]
-    return (input1_tensor, input2_tensor, label)
+    return input1_tensor, input2_tensor, label
 
 
 # 将训练数据一分为二，按比例划分训练集和验证集
@@ -59,14 +59,51 @@ def load_training_and_verify_pairs(pairs):
             pairs_false.append(pair)
     random.shuffle(pairs_true)
     random.shuffle(pairs_false)
-    training_pairs = pairs_true[0:int(len(pairs_true) * modelNet.TRAINTEST_RATE)] + pairs_false[
-                                                                                   0:int(len(
-                                                                                       pairs_true) * modelNet.TRAINTEST_RATE)]
-    test_pairs = pairs_true[int(len(pairs_true) * modelNet.TRAINTEST_RATE):] + pairs_false[int(
-        len(pairs_true) * modelNet.TRAINTEST_RATE):]
+    training_pairs = pairs_true[0:int(len(pairs_true) * modelNet.TRAINTEST_RATE)] + \
+                     pairs_false[0:int(len(pairs_false) * modelNet.TRAINTEST_RATE)]
+    test_pairs = pairs_true[int(len(pairs_true) * modelNet.TRAINTEST_RATE):] + \
+                 pairs_false[int(len(pairs_false) * modelNet.TRAINTEST_RATE):]
     random.shuffle(training_pairs)
     random.shuffle(test_pairs)
-    return (training_pairs, test_pairs)
+    return training_pairs, test_pairs
+
+
+# 部分抽取英语原语训练数据
+def get_some_english_train_pairs(english_pairs, spanish_pairs):
+    english_pairs_true = []
+    english_pairs_false = []
+    spanish_pairs_true = []
+    spanish_pairs_false = []
+
+    # 统计西班牙原语正负样本数量
+    for pair in spanish_pairs:
+        if pair[4] == '1':
+            spanish_pairs_true.append(pair)
+        else:
+            spanish_pairs_false.append(pair)
+
+    # 统计英语原语的正负样本数量
+    for pair in english_pairs:
+        if pair[4] == '1':
+            english_pairs_true.append(pair)
+        else:
+            english_pairs_false.append(pair)
+
+    # 打乱数据对
+    random.shuffle(spanish_pairs_true)
+    random.shuffle(spanish_pairs_false)
+    random.shuffle(english_pairs_true)
+    random.shuffle(english_pairs_false)
+
+    # 按英语原语与西班牙原语的比例取英语原语正负样本
+    train_pairs = english_pairs_true[0:len(spanish_pairs_true) * modelNet.ENGLISH_SPANISH_RATE] + \
+                  english_pairs_false[0:len(spanish_pairs_false) * modelNet.ENGLISH_SPANISH_RATE]
+    return train_pairs
+
+
+# TODO: 取部分英语原语数据作为验证集
+def get_some_english_verify_pairs(english_pairs):
+    pass
 
 
 # 将缺失的含有数字的词统一Embedding

@@ -18,7 +18,7 @@ class PARAMETER():
 
         # 加载数据对集合
         self.train_pairs = load_data.loadDataPairs('data/cikm_spanish_train_20180516.txt')
-        self.english_train_pairs = load_data.loadDataPairs('data/cikm_spanish_train_20180516.txt')
+        self.english_train_pairs = load_data.loadDataPairs('data/cikm_english_train_20180516.txt')
         self.test_pairs = load_data.loadDataPairs('data/cikm_test_a_20180516.txt')
 
         # 划分训练集和验证集
@@ -65,7 +65,7 @@ def locate_missing_word():
 if __name__ == '__main__':
     lstm = PARAMETER()
 
-    # preprocess.get_final_word_to_embedding()
+    # preprocess.get_some_english_train_pairs(english_pairs=lstm.english_train_pairs, spanish_pairs=lstm.train_pairs)
 
     # 显示训练前的结果
     train.beforeTrain(parameter=lstm)
