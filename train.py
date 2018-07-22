@@ -13,13 +13,13 @@ def beforeTrain(parameter):
         sum = 0
         for pair in parameter.verify_pairs:
             sum += 1
-            verify_pair = [preprocess.tensorsFromPair_verify(pair, parameter.word_to_embedding)].cuda()
-            tag_scores = parameter.model(verify_pair[0][0], verify_pair[0][1]).cuda()
-            label = verify_pair[0][2]
+            verify_pair = preprocess.tensorsFromPair_verify(pair, parameter.word_to_embedding).cuda()
+            tag_scores = parameter.model(verify_pair[0], verify_pair[1]).cuda()
+            label = verify_pair[2]
             if label == '1':
-                label = torch.tensor([1], dtype=torch.float)
+                label = torch.tensor([1], dtype=torch.float).cuda()
             else:
-                label = torch.tensor([0], dtype=torch.float)
+                label = torch.tensor([0], dtype=torch.float).cuda()
             loss = parameter.loss_function(tag_scores[0].view(-1), label)
             sum_loss += loss
         print("avg_loss:", float(sum_loss / sum))
