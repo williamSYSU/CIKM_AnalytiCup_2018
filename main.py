@@ -8,7 +8,9 @@ import modelNet
 import preprocess
 import test
 import train
+import os
 
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 
 class PARAMETER():
     def __init__(self):
