@@ -25,6 +25,8 @@ def verifyAfterTrainning(parameter):
 
         avg_loss = float(sum_loss / sum)
         print("final_avg_loss:", avg_loss)
+
+        # 在测试集上测试并保存测试结果
         for pair in parameter.test_pairs:
             test_pair = [preprocess.tensorsFromPair_test(pair, parameter.word_to_embedding)]
             tag_scores = parameter.model(test_pair[0][0], test_pair[0][1])
