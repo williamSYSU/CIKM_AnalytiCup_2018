@@ -21,7 +21,7 @@ def tensorFromSentence(sentence, embedding):
     tensor = tensors[0].view(1, -1)
     for i in range(1, len(tensors)):
         tensor = torch.cat([tensor, tensors[i].view(1, -1)], dim=0)
-    return tensor
+    return tensor.cuda()
 
 
 # 将数据对转化为相应的tensor
