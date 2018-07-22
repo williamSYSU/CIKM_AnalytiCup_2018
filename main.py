@@ -29,7 +29,7 @@ class PARAMETER():
         if modelNet.ENGLISH_TAG is 1:
             self.train_pairs = self.train_pairs + self.english_train_pairs
 
-        self.model = modelNet.Bi_LSTM()
+        self.model = modelNet.Bi_LSTM().cuda()
         self.loss_function = nn.BCELoss()
 
         self.optimizer = optim.SGD(self.model.parameters(), lr=modelNet.LEARNING_RATE)
