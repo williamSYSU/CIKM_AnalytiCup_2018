@@ -20,7 +20,7 @@ def tensorFromSentence(sentence, embedding):
             tensors.append(torch.rand(1, modelNet.EMBEDDING_SIZE))
     tensor = tensors[0].view(1, -1)
     for i in range(1, len(tensors)):
-        tensor = torch.cat([tensor, tensors[i].view(1, -1)], dim=0, device=device)
+        tensor = torch.cat([tensor, tensors[i].view(1, -1)], dim=0)
     return tensor
 
 
