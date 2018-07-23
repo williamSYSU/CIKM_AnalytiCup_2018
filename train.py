@@ -14,7 +14,7 @@ def beforeTrain(parameter):
         for pair in parameter.verify_pairs:
             sum += 1
             verify_pair = preprocess.tensorsFromPair_verify(pair, parameter.word_to_embedding)
-            tag_scores = parameter.model(verify_pair[0], verify_pair[1]).cuda()
+            tag_scores = parameter.model(verify_pair[0].cuda(), verify_pair[1].cuda()).cuda()
             label = verify_pair[2]
             if label == '1':
                 label = torch.tensor([1], dtype=torch.float)
@@ -35,7 +35,7 @@ def beginTrain(parameter):
         for pair in parameter.train_pairs:
             parameter.model.zero_grad()
             training_pair = preprocess.tensorsFromPair(pair, parameter.word_to_embedding)
-            tag_scores = parameter.model(training_pair[0], training_pair[1]).cuda()
+            tag_scores = parameter.model(training_pair[0].cuda(), training_pair[1].cuda()).cuda()
             label = training_pair[2]
 
             if label == '1':
