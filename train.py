@@ -14,9 +14,6 @@ def beforeTrain(parameter):
         for pair in parameter.verify_pairs:
             sum += 1
             verify_pair = preprocess.tensorsFromPair_verify(pair, parameter.word_to_embedding)
-            tag_scores = parameter.model(verify_pair[0], verify_pair[1])
-            label = verify_pair[2]
-            verify_pair = preprocess.tensorsFromPair_verify(pair, parameter.word_to_embedding)
             tag_scores = parameter.model(verify_pair[0], verify_pair[1]).cuda()
             label = verify_pair[2]
             if label == '1':
