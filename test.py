@@ -17,10 +17,10 @@ def verifyAfterTrainning(parameter):
             tag_scores = parameter.model(verify_pair[0], verify_pair[1]).cuda()
             label = verify_pair[2]
             if label == '1':
-                label = torch.tensor([1], dtype=torch.float).cuda()
+                label = torch.tensor([1], dtype=torch.float)
             else:
-                label = torch.tensor([0], dtype=torch.float).cuda()
-            loss = parameter.loss_function(tag_scores[0].view(-1), label)
+                label = torch.tensor([0], dtype=torch.float)
+            loss = parameter.loss_function(tag_scores[0].view(-1), label.cuda())
             sum_loss += loss
 
         avg_loss = float(sum_loss / sum)

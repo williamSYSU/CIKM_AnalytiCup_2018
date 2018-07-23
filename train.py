@@ -30,7 +30,7 @@ def beginTrain(parameter):
     data['epoch_num'] = modelNet.EPOCH_NUM
     print('begin learning:')
     for epoch in range(modelNet.EPOCH_NUM):
-        loss = torch.tensor([0], dtype=torch.float)
+        loss = torch.tensor([0], dtype=torch.float).cuda()
 
         for pair in parameter.train_pairs:
             parameter.model.zero_grad()
