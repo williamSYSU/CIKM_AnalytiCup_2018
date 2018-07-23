@@ -129,10 +129,9 @@ class MatchSRNN(nn.Module):
         # print("qwe:",torch.cat((hidden[0], hidden[1], hidden[2])))
         # print("sd:",torch.mm(self.U,(r*torch.cat((hidden[0],hidden[1],hidden[2]))).view(-1,1)).view(-1))
         # print("fdsf:",self.h_linear(input_s))
-        h_ = self.tanh(self.h_linear(input_s) + torch.mm(self.U,
-                                                         (r * torch.cat((hidden[0], hidden[1], hidden[2]))).view(-1,
-                                                                                                                 1)).view(
-            -1))
+        h_ = self.tanh(self.h_linear(input_s) +
+                       torch.mm(self.U, (r * torch.cat((
+                           hidden[0], hidden[1], hidden[2]))).view(-1, 1)).view(-1))
         h = z2 * hidden[1] + z3 * hidden[0] + z4 * hidden[2] + h_ * z1
         # print(z2*hidden[1],z3*hidden[0],z4*hidden[2],h_*z1)
         # print("h",h)
