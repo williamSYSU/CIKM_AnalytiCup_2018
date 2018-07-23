@@ -28,7 +28,7 @@ def beforeTrain(parameter):
 def beginTrain(parameter):
     # 在训练集上训练
     data['epoch_num'] = modelNet.EPOCH_NUM
-    print('begin training:')
+    print('begin learning:')
     for epoch in range(modelNet.EPOCH_NUM):
         loss = torch.tensor([0], dtype=torch.float)
 
