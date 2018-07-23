@@ -14,13 +14,13 @@ def beforeTrain(parameter):
         for pair in parameter.verify_pairs:
             sum += 1
             verify_pair = preprocess.tensorsFromPair_verify(pair, parameter.word_to_embedding)
-            tag_scores = parameter.model(verify_pair[0], verify_pair[1]).cuda()
+            tag_scores = parameter.model(verify_pair[0], verify_pair[1])
             label = verify_pair[2]
             if label == '1':
                 label = torch.tensor([1], dtype=torch.float)
             else:
                 label = torch.tensor([0], dtype=torch.float)
-            loss = parameter.loss_function(tag_scores[0].view(-1), label.cuda())
+            loss = parameter.loss_function(tag_scores[0].view(-1), label)
             sum_loss += loss
         print("avg_loss:", float(sum_loss / sum))
 
@@ -30,19 +30,19 @@ def beginTrain(parameter):
     data['epoch_num'] = modelNet.EPOCH_NUM
     print('begin learning:')
     for epoch in range(modelNet.EPOCH_NUM):
-        loss = torch.tensor([0], dtype=torch.float).cuda()
+        loss = torch.tensor([0], dtype=torch.float)
 
         for pair in parameter.train_pairs:
             parameter.model.zero_grad()
             training_pair = preprocess.tensorsFromPair(pair, parameter.word_to_embedding)
-            tag_scores = parameter.model(training_pair[0], training_pair[1]).cuda()
+            tag_scores = parameter.model(training_pair[0], training_pair[1])
             label = training_pair[2]
 
             if label == '1':
                 label = torch.tensor([1], dtype=torch.float)
             else:
                 label = torch.tensor([0], dtype=torch.float)
-            loss = parameter.loss_function(tag_scores[0].view(-1), label.cuda())
+            loss = parameter.loss_function(tag_scores[0].view(-1), label)
             loss.backward()
             parameter.optimizer.step()
         data['epoch' + str(epoch) + 'loss'] = loss.item()

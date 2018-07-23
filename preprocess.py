@@ -16,19 +16,18 @@ def tensorFromSentence(sentence, embedding):
     for word in sentence.split(' '):
         # print('word: ', word)
         if word in embedding.keys():
-            tensors.append(embedding[word].cuda())
+            tensors.append(embedding[word])
         else:
-            tensors.append(torch.rand(1, modelNet.EMBEDDING_SIZE).cuda())
+            tensors.append(torch.rand(1, modelNet.EMBEDDING_SIZE))
     tensor = tensors[0].view(1, -1)
     for i in range(1, len(tensors)):
-        tensor = torch.cat([tensor, tensors[i].view(1, -1)], dim=0).cuda()
-    return tensor.cuda()
-
+        tensor = torch.cat([tensor, tensors[i].view(1, -1)], dim=0)
+    return tensor
 
 # 将数据对转化为相应的tensor
 def tensorsFromPair(pair, embedding):
-    input1_tensor = tensorFromSentence(pair[0], embedding).cuda()
-    input2_tensor = tensorFromSentence(pair[2], embedding).cuda()
+    input1_tensor = tensorFromSentence(pair[0], embedding)
+    input2_tensor = tensorFromSentence(pair[2], embedding)
     # input_tensor=torch.cat((input1_tensor,input2_tensor),dim=0)
     label = pair[4]
     return input1_tensor, input2_tensor, label
@@ -36,15 +35,15 @@ def tensorsFromPair(pair, embedding):
 
 # 从数据对中选出对应西班牙语的数据对
 def tensorsFromPair_test(pair, embedding):
-    input1_tensor = tensorFromSentence(pair[0], embedding).cuda()
-    input2_tensor = tensorFromSentence(pair[1], embedding).cuda()
+    input1_tensor = tensorFromSentence(pair[0], embedding)
+    input2_tensor = tensorFromSentence(pair[1], embedding)
     # input_tensor = torch.cat((input1_tensor, input2_tensor), dim=0)
     return input1_tensor, input2_tensor
 
 
 def tensorsFromPair_verify(pair, embedding):
-    input1_tensor = tensorFromSentence(pair[0], embedding).cuda()
-    input2_tensor = tensorFromSentence(pair[2], embedding).cuda()
+    input1_tensor = tensorFromSentence(pair[0], embedding)
+    input2_tensor = tensorFromSentence(pair[2], embedding)
     # input_tensor = torch.cat((input1_tensor, input2_tensor), dim=0)
     label = pair[4]
     return input1_tensor, input2_tensor, label

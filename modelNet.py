@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-import torch.functional as F
+import torch.nn.functional as F
 
 EMBEDDING_SIZE = 300
 HIDDEN_SIZE = 200

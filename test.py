@@ -14,13 +14,13 @@ def verifyAfterTrainning(parameter):
         for pair in parameter.verify_pairs:
             sum += 1
             verify_pair = preprocess.tensorsFromPair_verify(pair, parameter.word_to_embedding)
-            tag_scores = parameter.model(verify_pair[0], verify_pair[1]).cuda()
+            tag_scores = parameter.model(verify_pair[0], verify_pair[1])
             label = verify_pair[2]
             if label == '1':
                 label = torch.tensor([1], dtype=torch.float)
             else:
                 label = torch.tensor([0], dtype=torch.float)
-            loss = parameter.loss_function(tag_scores[0].view(-1), label.cuda())
+            loss = parameter.loss_function(tag_scores[0].view(-1), label)
             sum_loss += loss
 
         avg_loss = float(sum_loss / sum)
@@ -29,7 +29,7 @@ def verifyAfterTrainning(parameter):
         # 在测试集上测试并保存测试结果
         for pair in parameter.test_pairs:
             test_pair = preprocess.tensorsFromPair_test(pair, parameter.word_to_embedding)
-            tag_scores = parameter.model(test_pair[0], test_pair[1]).cuda()
+            tag_scores = parameter.model(test_pair[0], test_pair[1])
             with open("Result/test_result_" + str(modelNet.ENGLISH_TAG) + "_" + str(avg_loss) + ".txt", 'a') as f:
                 f.write(str(tag_scores[0].item()) + "\n")
 
