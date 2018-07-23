@@ -83,7 +83,7 @@ def loadEmbedVocab(filename, mode='r'):
     with open(filename, encoding='utf-8', mode=mode) as file:
         for line in file:
             items = line.strip().split()
-            embedding[items[0]] = torch.tensor([float(item) for item in items[1:modelNet.EMBEDDING_SIZE + 1]]).cuda()
+            embedding[items[0]] = torch.tensor([float(item) for item in items[1:modelNet.EMBEDDING_SIZE + 1]])
         return embedding
 
 
