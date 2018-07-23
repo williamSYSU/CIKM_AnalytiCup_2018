@@ -28,7 +28,7 @@ def verifyAfterTrainning(parameter):
 
         # 在测试集上测试并保存测试结果
         for pair in parameter.test_pairs:
-            test_pair = [preprocess.tensorsFromPair_test(pair, parameter.word_to_embedding)]
+            test_pair = preprocess.tensorsFromPair_test(pair, parameter.word_to_embedding)
             tag_scores = parameter.model(test_pair[0], test_pair[1])
             with open("Result/test_result_" + str(modelNet.ENGLISH_TAG) + "_" + str(avg_loss) + ".txt", 'a') as f:
                 f.write(str(tag_scores[0].item()) + "\n")
