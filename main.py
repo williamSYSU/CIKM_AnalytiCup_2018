@@ -10,7 +10,7 @@ import test
 import train
 import os
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "2"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 class PARAMETER():
     def __init__(self):
