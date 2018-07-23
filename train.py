@@ -13,9 +13,9 @@ def beforeTrain(parameter):
         sum = 0
         for pair in parameter.verify_pairs:
             sum += 1
-            verify_pair = [preprocess.tensorsFromPair_verify(pair, parameter.word_to_embedding)]
-            tag_scores = parameter.model(verify_pair[0][0], verify_pair[0][1])
-            label = verify_pair[0][2]
+            verify_pair = preprocess.tensorsFromPair_verify(pair, parameter.word_to_embedding)
+            tag_scores = parameter.model(verify_pair[0], verify_pair[1])
+            label = verify_pair[2]
             if label == '1':
                 label = torch.tensor([1], dtype=torch.float)
             else:
@@ -28,6 +28,7 @@ def beforeTrain(parameter):
 def beginTrain(parameter):
     # 在训练集上训练
     data['epoch_num'] = modelNet.EPOCH_NUM
+    print('begin training:')
     for epoch in range(modelNet.EPOCH_NUM):
         loss = torch.tensor([0], dtype=torch.float)
 
@@ -37,8 +38,6 @@ def beginTrain(parameter):
             tag_scores = parameter.model(training_pair[0], training_pair[1])
             label = training_pair[2]
 
-
-            # TODO: 确定优化目标
             if label == '1':
                 label = torch.tensor([1], dtype=torch.float)
             else:
