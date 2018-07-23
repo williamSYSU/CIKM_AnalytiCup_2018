@@ -8,7 +8,9 @@ import modelNet
 import preprocess
 import test
 import train
+import os
 
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 
 class PARAMETER():
     def __init__(self):
@@ -28,7 +30,7 @@ class PARAMETER():
         # 划分训练集和验证集
         self.train_pairs, self.verify_pairs = preprocess.load_training_and_verify_pairs(pairs=self.train_pairs)
 
-        self.model = modelNet.MatchSRNN()
+        self.model = modelNet.MatchSRNN().cuda()
         self.loss_function = nn.BCELoss()
 
         self.optimizer = optim.SGD(self.model.parameters(), lr=modelNet.LEARNING_RATE)

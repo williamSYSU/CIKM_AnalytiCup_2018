@@ -7,7 +7,7 @@ HIDDEN_SIZE = 200
 TARGET_SIZE = 2
 DROPOUT_RATE = 0.1
 LEARNING_RATE = 0.01
-EPOCH_NUM = 10
+EPOCH_NUM = 5
 
 ENGLISH_TAG = 1  # 是否加入英语原语训练集，0：不加入；1：加入
 ENGLISH_SPANISH_RATE = 1  # 英语原语训练数据与西班牙原语训练数据的比例
@@ -94,7 +94,7 @@ class MatchSRNN(nn.Module):
             out.append(tmp.item())
         add_input = torch.cat((input1.view(1, -1), input2.view(1, -1)), dim=1)
         lin = self.Linear(add_input)
-        out = torch.add(torch.tensor(out), lin.view(-1))
+        out = torch.add(torch.tensor(out).cuda(), lin.view(-1))
         out = self.relu(out)
         return out.view(1, -1)
 
@@ -129,10 +129,7 @@ class MatchSRNN(nn.Module):
         # print("qwe:",torch.cat((hidden[0], hidden[1], hidden[2])))
         # print("sd:",torch.mm(self.U,(r*torch.cat((hidden[0],hidden[1],hidden[2]))).view(-1,1)).view(-1))
         # print("fdsf:",self.h_linear(input_s))
-        h_ = self.tanh(self.h_linear(input_s) + torch.mm(self.U,
-                                                         (r * torch.cat((hidden[0], hidden[1], hidden[2]))).view(-1,
-                                                                                                                 1)).view(
-            -1))
+        h_ = self.tanh(self.h_linear(input_s) + torch.mm(self.U,(r * torch.cat((hidden[0], hidden[1], hidden[2]))).view(-1,1)).view(-1))
         h = z2 * hidden[1] + z3 * hidden[0] + z4 * hidden[2] + h_ * z1
         # print(z2*hidden[1],z3*hidden[0],z4*hidden[2],h_*z1)
         # print("h",h)
@@ -140,16 +137,18 @@ class MatchSRNN(nn.Module):
 
     def init_hidden(self, all_hidden, i, j):
         if i == 0 and j == 0:
-            return [torch.zeros(self.hidden_dim), torch.zeros(self.hidden_dim), torch.zeros(self.hidden_dim)]
+            return [torch.zeros(self.hidden_dim).cuda(), torch.zeros(self.hidden_dim).cuda(), torch.zeros(self.hidden_dim).cuda()]
         elif i == 0:
-            return [torch.zeros(self.hidden_dim), all_hidden[i][j - 1], torch.zeros(self.hidden_dim)]
+            return [torch.zeros(self.hidden_dim).cuda(), all_hidden[i][j - 1], torch.zeros(self.hidden_dim).cuda()]
         elif j == 0:
-            return [all_hidden[i - 1][j], torch.zeros(self.hidden_dim), torch.zeros(self.hidden_dim)]
+            return [all_hidden[i - 1][j], torch.zeros(self.hidden_dim).cuda(), torch.zeros(self.hidden_dim).cuda()]
         else:
             return all_hidden[i - 1][j], all_hidden[i][j - 1], all_hidden[i - 1][j - 1]
 
     def forward(self, input1, input2):
         count = 0
+        input1 = input1.cuda()
+        input2 = input2.cuda()
         for i in range(input1.size(0)):
             for j in range(input2.size(0)):
                 if count == 0:

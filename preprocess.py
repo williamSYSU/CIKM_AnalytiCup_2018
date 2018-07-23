@@ -8,6 +8,7 @@ import torch.nn as nn
 import load_data
 import modelNet
 
+device = torch.device("cuda:0")
 
 # 把句子转为tensor
 def tensorFromSentence(sentence, embedding):
@@ -15,19 +16,19 @@ def tensorFromSentence(sentence, embedding):
     for word in sentence.split(' '):
         # print('word: ', word)
         if word in embedding.keys():
-            tensors.append(embedding[word])
+            tensors.append(embedding[word].cuda())
         else:
-            tensors.append(torch.rand(1, modelNet.EMBEDDING_SIZE))
+            tensors.append(torch.rand(1, modelNet.EMBEDDING_SIZE).cuda())
     tensor = tensors[0].view(1, -1)
     for i in range(1, len(tensors)):
-        tensor = torch.cat([tensor, tensors[i].view(1, -1)], dim=0)
-    return tensor
+        tensor = torch.cat([tensor, tensors[i].view(1, -1)], dim=0).cuda()
+    return tensor.cuda()
 
 
 # 将数据对转化为相应的tensor
 def tensorsFromPair(pair, embedding):
-    input1_tensor = tensorFromSentence(pair[0], embedding)
-    input2_tensor = tensorFromSentence(pair[2], embedding)
+    input1_tensor = tensorFromSentence(pair[0], embedding).cuda()
+    input2_tensor = tensorFromSentence(pair[2], embedding).cuda()
     # input_tensor=torch.cat((input1_tensor,input2_tensor),dim=0)
     label = pair[4]
     return input1_tensor, input2_tensor, label
@@ -35,15 +36,15 @@ def tensorsFromPair(pair, embedding):
 
 # 从数据对中选出对应西班牙语的数据对
 def tensorsFromPair_test(pair, embedding):
-    input1_tensor = tensorFromSentence(pair[0], embedding)
-    input2_tensor = tensorFromSentence(pair[1], embedding)
+    input1_tensor = tensorFromSentence(pair[0], embedding).cuda()
+    input2_tensor = tensorFromSentence(pair[1], embedding).cuda()
     # input_tensor = torch.cat((input1_tensor, input2_tensor), dim=0)
     return input1_tensor, input2_tensor
 
 
 def tensorsFromPair_verify(pair, embedding):
-    input1_tensor = tensorFromSentence(pair[0], embedding)
-    input2_tensor = tensorFromSentence(pair[2], embedding)
+    input1_tensor = tensorFromSentence(pair[0], embedding).cuda()
+    input2_tensor = tensorFromSentence(pair[2], embedding).cuda()
     # input_tensor = torch.cat((input1_tensor, input2_tensor), dim=0)
     label = pair[4]
     return input1_tensor, input2_tensor, label
