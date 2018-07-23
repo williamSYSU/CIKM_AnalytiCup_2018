@@ -17,10 +17,10 @@ def beforeTrain(parameter):
             tag_scores = parameter.model(verify_pair[0], verify_pair[1]).cuda()
             label = verify_pair[2]
             if label == '1':
-                label = torch.tensor([1], dtype=torch.float).cuda()
+                label = torch.tensor([1], dtype=torch.float)
             else:
-                label = torch.tensor([0], dtype=torch.float).cuda()
-            loss = parameter.loss_function(tag_scores[0].view(-1), label)
+                label = torch.tensor([0], dtype=torch.float)
+            loss = parameter.loss_function(tag_scores[0].view(-1), label.cuda())
             sum_loss += loss
         print("avg_loss:", float(sum_loss / sum))
 
@@ -38,13 +38,11 @@ def beginTrain(parameter):
             tag_scores = parameter.model(training_pair[0], training_pair[1]).cuda()
             label = training_pair[2]
 
-
-            # TODO: 确定优化目标
             if label == '1':
-                label = torch.tensor([1], dtype=torch.float).cuda()
+                label = torch.tensor([1], dtype=torch.float)
             else:
-                label = torch.tensor([0], dtype=torch.float).cuda()
-            loss = parameter.loss_function(tag_scores[0].view(-1), label)
+                label = torch.tensor([0], dtype=torch.float)
+            loss = parameter.loss_function(tag_scores[0].view(-1), label.cuda())
             loss.backward()
             parameter.optimizer.step()
         data['epoch' + str(epoch) + 'loss'] = loss.item()
