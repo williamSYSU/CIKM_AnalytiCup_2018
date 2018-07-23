@@ -14,7 +14,6 @@ def verifyAfterTrainning(parameter):
         for pair in parameter.verify_pairs:
             sum += 1
             verify_pair = preprocess.tensorsFromPair_verify(pair, parameter.word_to_embedding)
-            verify_pair = preprocess.tensorsFromPair_verify(pair, parameter.word_to_embedding)
             tag_scores = parameter.model(verify_pair[0].cuda(), verify_pair[1].cuda()).cuda()
             label = verify_pair[2]
             if label == '1':
