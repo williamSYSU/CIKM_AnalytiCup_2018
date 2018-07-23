@@ -18,6 +18,7 @@ TRAINTEST_RATE = 0.7  # 划分训练集和验证集的比例
 class Bi_LSTM(nn.Module):
     def __init__(self):
         super(Bi_LSTM, self).__init__()
+        print('Current Model: Bi_LSTM')
         self.bi_lstm_context1 = nn.LSTM(EMBEDDING_SIZE, HIDDEN_SIZE, bidirectional=True)
         self.bi_lstm_context2 = nn.LSTM(EMBEDDING_SIZE, HIDDEN_SIZE, bidirectional=True)
         self.dense1 = nn.Linear(8 * HIDDEN_SIZE, 400)
@@ -45,6 +46,7 @@ class Bi_LSTM(nn.Module):
 class LSTM(nn.Module):
     def __init__(self):
         super(LSTM, self).__init__()
+        print('Current model: LSTM')
         self.lstm1 = nn.LSTM(EMBEDDING_SIZE, HIDDEN_SIZE)
         self.lstm2 = nn.LSTM(EMBEDDING_SIZE, HIDDEN_SIZE)
         self.dense1 = nn.Linear(2 * HIDDEN_SIZE, 256)
