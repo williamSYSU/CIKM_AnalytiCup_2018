@@ -150,9 +150,6 @@ class MatchSRNN(nn.Module):
         return h
 
     def init_hidden(self, all_hidden, i, j):
-        for hidden in all_hidden:
-            hidden = hidden.cuda()
-
         if i == 0 and j == 0:
             return [torch.zeros(self.hidden_dim).cuda(), torch.zeros(self.hidden_dim).cuda(),
                     torch.zeros(self.hidden_dim).cuda()]
