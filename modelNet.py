@@ -11,7 +11,7 @@ EPOCH_NUM = 10
 
 ENGLISH_TAG = 1  # 是否加入英语原语训练集，0：不加入；1：加入
 ENGLISH_SPANISH_RATE = 1  # 英语原语训练数据与西班牙原语训练数据的比例
-TRAINTEST_RATE = 0.6  # 划分训练集和验证集的比例
+TRAINTEST_RATE = 0.7  # 划分训练集和验证集的比例
 
 
 # 两个lstm网络模型
