@@ -8,7 +8,7 @@ import modelNet
 import preprocess
 import test
 import train
-
+import testModule
 
 class PARAMETER():
     def __init__(self):
@@ -18,7 +18,7 @@ class PARAMETER():
 
         # 加载数据对集合
         self.train_pairs = load_data.loadDataPairs('data/cikm_spanish_train_20180516.txt')
-        self.english_train_pairs = load_data.loadDataPairs('data/cikm_spanish_train_20180516.txt')
+        self.english_train_pairs = load_data.loadDataPairs('data/cikm_english_train_20180516.txt')
         self.test_pairs = load_data.loadDataPairs('data/cikm_test_a_20180516.txt')
 
         # 划分训练集和验证集
@@ -27,7 +27,7 @@ class PARAMETER():
         if modelNet.ENGLISH_TAG is 1:
             self.train_pairs = self.train_pairs + self.english_train_pairs
 
-        self.model = modelNet.Bi_LSTM()
+        self.model = testModule.testModule()
         self.loss_function = nn.BCELoss()
 
         self.optimizer = optim.SGD(self.model.parameters(), lr=modelNet.LEARNING_RATE)
