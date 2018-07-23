@@ -15,8 +15,7 @@ def tensorFromSentence(sentence, embedding):
     for word in sentence.split(' '):
         # print('word: ', word)
         if word in embedding.keys():
-            tensors.append(embedding[word])
-            print('tensors:', tensors)
+            tensors.append(embedding[word]).cuda()
         else:
             tensors.append(torch.rand(1, modelNet.EMBEDDING_SIZE).cuda())
     tensor = tensors[0].view(1, -1)
