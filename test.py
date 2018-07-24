@@ -43,8 +43,8 @@ def verifyAfterTrainning(parameter):
             f.write("learning rate:" + str(modelNet.LEARNING_RATE) + "\n")
             f.write("dropout rate:" + str(modelNet.DROPOUT_RATE) + "\n")
             f.write("training rate:" + str(modelNet.TRAINTEST_RATE) + "\n")
-            f.write("epoch num:" + str(train.data['epoch_num']) + "\n")
-            for i in range(train.data['epoch_num']):
-                f.write("epoch " + str(i) + "  loss:" + str(train.data['epoch' + str(i) + 'loss']) + "\n")
+            f.write("epoch num:" + str(train.restore_data['epoch_num']) + "\n")
+            for i in range(train.restore_data['epoch_num']):
+                f.write("epoch " + str(i) + "  loss:" + str(train.restore_data['epoch' + str(i) + 'loss']) + "\n")
 
             f.write("test loss:" + str(avg_loss) + "\n")

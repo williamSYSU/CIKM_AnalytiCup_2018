@@ -1,17 +1,23 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import torch.cuda
 
 EMBEDDING_SIZE = 300
 HIDDEN_SIZE = 200
 TARGET_SIZE = 2
 DROPOUT_RATE = 0.1
-LEARNING_RATE = 0.01
-EPOCH_NUM = 10
+LEARNING_RATE = 0.05
+BATCH_SIZE = 32
+EPOCH_NUM = 190
 
 ENGLISH_TAG = 1  # 是否加入英语原语训练集，0：不加入；1：加入
 ENGLISH_SPANISH_RATE = 1  # 英语原语训练数据与西班牙原语训练数据的比例
 TRAINTEST_RATE = 0.7  # 划分训练集和验证集的比例
+DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+MAX_SQE_LEN = 56  # 最长的句子词数
+END_OF_SEN = torch.ones(1, dtype=torch.float).new_full((1, EMBEDDING_SIZE), 0)
 
 
 # 两个lstm网络模型
@@ -27,15 +33,24 @@ class Bi_LSTM(nn.Module):
 
         self.dropout = nn.Dropout(DROPOUT_RATE)
 
-        self.stm = nn.Softmax(dim=0)
+        # self.stm = nn.Softmax(dim=0)
+        self.stm = nn.Sigmoid()
 
     def forward(self, input1, input2):
-        out1, (_, _) = self.bi_lstm_context1(input1.unsqueeze(0))
-        out2, (_, _) = self.bi_lstm_context2(input2.unsqueeze(0))
-        merge = torch.cat((out1[0][0], out1[0][-1], out2[0][0], out2[0][-1]), dim=0)
-        out = self.dense1(merge)
+        out1, (_, _) = self.bi_lstm_context1(input1)
+        out2, (_, _) = self.bi_lstm_context2(input2)
+
+        # 当batch_size > 1时，需要根据batch_size手动合并
+        all_merge = []
+        for idx in range(len(out1)):
+            merge = torch.cat((out1[idx][0], out1[idx][-1], out2[idx][0], out2[idx][-1]), dim=0)
+            if idx is 0:
+                all_merge = merge.unsqueeze(0)
+            else:
+                all_merge = torch.cat((all_merge, merge.unsqueeze(0)), dim=0)
+
+        out = self.dense1(all_merge)
         out = self.dense2(out)
-        # out = self.dropout(out)
         out = self.dense3(out)
         out = self.dropout(out)
         out = self.stm(out)
@@ -55,10 +70,11 @@ class LSTM(nn.Module):
 
         self.dropout = nn.Dropout(DROPOUT_RATE)
         self.stm = nn.Softmax(dim=0)
+        # self.stm = nn.Sigmoid()
 
     def forward(self, input1, input2):
-        out1, hidden1 = self.lstm1(input1.unsqueeze(0))
-        out2, hidden2 = self.lstm2(input2.unsqueeze(0))
+        out1, hidden1 = self.lstm1(input1)
+        out2, hidden2 = self.lstm2(input2)
 
         merge = torch.cat((out1[0][-1], out2[0][-1]), dim=0)
         out = self.dense1(merge)
