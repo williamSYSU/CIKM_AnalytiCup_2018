@@ -20,20 +20,20 @@ class Instructor:
             batch_size=modelNet.BATCH_SIZE,
             shuffle=False,
             drop_last=True,
-            num_workers=2
+            num_workers=4
         )
         self.verify_data_loader = DataLoader(
             dataset=cimk_dataset.verify_data,
             batch_size=modelNet.BATCH_SIZE,
             shuffle=True,
             drop_last=True,
-            num_workers=2
+            num_workers=4
         )
         self.test_data_loader = DataLoader(
             dataset=cimk_dataset.test_data,
             batch_size=1,
             shuffle=False,
-            num_workers=2
+            num_workers=4
         )
 
         self.model = modelNet.Bi_LSTM().to(modelNet.DEVICE)
