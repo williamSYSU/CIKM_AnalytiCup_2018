@@ -129,7 +129,7 @@ class Instructor:
             input1 = sample_batch['input1'].to(modelNet.DEVICE)
             input2 = sample_batch['input2'].to(modelNet.DEVICE)
 
-            outputs = self.model(input1, input2).index_select(1, torch.tensor([1])).to(modelNet.DEVICE).view(-1)
+            outputs = self.model(input1, input2).index_select(1, torch.tensor([1]).to(modelNet.DEVICE)).view(-1)
 
             with open("Result/test_result_" + str(modelNet.ENGLISH_TAG) + "_" + str(final_avg_loss) + ".txt", 'a') as f:
                 f.write(str(outputs[0].item()) + "\n")
