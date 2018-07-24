@@ -62,7 +62,7 @@ class Instructor:
                 input2 = sample_batch['input2'].to(modelNet.DEVICE)
                 label = sample_batch['label'].to(modelNet.DEVICE)
 
-                outputs = self.model(input1, input2).index_select(1, torch.tensor([1])).view(-1)
+                outputs = self.model(input1, input2).index_select(1, torch.tensor([1]).to(modelNet.DEVICE)).view(-1)
 
                 loss = self.criterion(outputs, label)
                 sum_loss += loss
