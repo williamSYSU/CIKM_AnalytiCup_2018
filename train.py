@@ -80,8 +80,8 @@ class Instructor:
             loss = torch.tensor([0], dtype=torch.float)
             for idx, sample_batch in enumerate(self.train_data_loader):
                 self.model.train()  # 切换模型至训练模式
-                self.optimizer.zero_grad()  # 清空积累的梯度
-                # self.model.zero_grad()
+                # self.optimizer.zero_grad()
+                self.model.zero_grad()  # 清空积累的梯度
 
                 # 取训练数据和标签
                 input1 = sample_batch['input1'].to(modelNet.DEVICE)
