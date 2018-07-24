@@ -9,7 +9,7 @@ TARGET_SIZE = 2
 DROPOUT_RATE = 0.1
 LEARNING_RATE = 0.05
 BATCH_SIZE = 32
-EPOCH_NUM = 1
+EPOCH_NUM = 1000
 
 ENGLISH_TAG = 1  # 是否加入英语原语训练集，0：不加入；1：加入
 ENGLISH_SPANISH_RATE = 1  # 英语原语训练数据与西班牙原语训练数据的比例
