@@ -72,7 +72,7 @@ class Instructor:
     def beginTrain(self):
         restore_data['epoch_num'] = modelNet.EPOCH_NUM
         print('=' * 100)
-        print('Begin learning:')
+        print('Begin learning......')
 
         pos = -1
         for epoch in range(modelNet.EPOCH_NUM):
@@ -102,7 +102,7 @@ class Instructor:
     def verify_and_test_model(self):
         self.model.eval()  # 设置模型为验证模式
         print('=' * 100)
-        print('Begin verify...')
+        print('Begin verify......')
 
         sum_loss = 0
         with torch.no_grad():
@@ -123,7 +123,7 @@ class Instructor:
 
         # 在测试集上测试并保存结果
         print('=' * 100)
-        print('Begin test and save model....')
+        print('Begin test and save model......')
         for idx, sample_batch in enumerate(self.test_data_loader):
 
             input1 = sample_batch['input1'].to(modelNet.DEVICE)
