@@ -46,7 +46,6 @@ class Instructor:
         self.model = opt.model_class().to(opt.device)
         self.criterion = nn.BCELoss()
         self.optimizer = opt.optimizer(self.model.parameters(), lr=modelNet.LEARNING_RATE)
-        print('in train:', modelNet.LEARNING_RATE)
 
     # 去除填充字符
     @staticmethod

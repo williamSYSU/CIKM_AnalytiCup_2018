@@ -54,16 +54,14 @@ if __name__ == '__main__':
 
     # 初始化modelNet参数
     modelNet.initParameter(opt)
-    print('in main:', modelNet.LEARNING_RATE)
-    print('in main, opt is :', opt.learning_rate)
 
     instructor = Instructor(opt)
 
     # 显示训练前的结果
-    # instructor.beforeTrain()
+    instructor.beforeTrain()
 
     # 开始训练模型
-    # instructor.beginTrain()
+    instructor.beginTrain()
 
     # 显示训练后在验证集上的结果
-    # instructor.verifyModel()
+    instructor.verifyModel()
