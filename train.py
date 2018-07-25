@@ -25,7 +25,7 @@ class Instructor:
         self.train_data_loader = DataLoader(
             dataset=cimk_dataset.train_data,
             batch_size=opt.batch_size,
-            shuffle=False,
+            shuffle=True,
             drop_last=True,
             num_workers=4
         )
@@ -94,8 +94,8 @@ class Instructor:
                 label = sample_batch['label'].to(modelNet.DEVICE)
 
                 outputs = self.model(input1, input2)[:, 1].view(-1)
-                if idx is 5:
-                    print('output: {}\nlabel: {}'.format(outputs, label))
+                # if idx is 5:
+                #     print('output: {}\nlabel: {}'.format(outputs, label))
 
                 loss = self.criterion(outputs, label)
                 loss.backward()
