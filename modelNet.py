@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.cuda
+import datetime
 from dynamicpool import DynamicPool
 
 EMBEDDING_SIZE = 300
@@ -117,7 +118,7 @@ class MatchSRNN(nn.Module):
         self.relu = nn.ReLU()
         self.qrLinear = nn.Linear(3 * self.hidden_dim + self.dimension, 3 * self.hidden_dim)
         self.qzLinear = nn.Linear(3 * self.hidden_dim + self.dimension, 4 * self.hidden_dim)
-        self.U = torch.nn.Parameter(torch.randn(self.hidden_dim, 3 * self.hidden_dim))
+        # self.U = torch.nn.Parameter(torch.randn(self.hidden_dim, 3 * self.hidden_dim))
         self.h_linear = nn.Linear(self.dimension + 3 * self.hidden_dim, self.hidden_dim)
         self.tanh = nn.Tanh()
         self.lastlinear = nn.Linear(self.hidden_dim, self.target)
@@ -139,10 +140,6 @@ class MatchSRNN(nn.Module):
         return out.view(1, -1)
 
     def softmaxbyrow(self, input):
-        # z1=input[:self.hidden_dim]
-        # z2=input[self.hidden_dim:self.hidden_dim*2]
-        # z3 = input[self.hidden_dim*2:self.hidden_dim * 3]
-        # z4 = input[self.hidden_dim*3:self.hidden_dim * 4]
         input = input.view(4, -1)
         input = torch.transpose(input, 0, 1)
         a = []
@@ -162,22 +159,11 @@ class MatchSRNN(nn.Module):
     def spatialRNN(self, input_s, hidden):
         q = torch.cat((torch.cat((hidden[0], hidden[1])), torch.cat((hidden[2], input_s))))
         r = F.sigmoid(self.qrLinear(q))
-        # print("q:",q)
         z = self.qzLinear(q)
         z = F.sigmoid(z)
         z1, z2, z3, z4 = self.softmaxbyrow(z)
-        # print("r:",r)
-        # print("qwe:",torch.cat((hidden[0], hidden[1], hidden[2])))
-        # print("sd:",torch.mm(self.U,(r*torch.cat((hidden[0],hidden[1],hidden[2]))).view(-1,1)).view(-1))
-        # print("fdsf:",self.h_linear(input_s))
-        # h_ = self.tanh(self.h_linear(input_s) + torch.mm(self.U,
-        #                                                  (r * torch.cat((hidden[0], hidden[1], hidden[2]))).view(-1,
-        #                                                                                                          1)).view(
-        #     -1))
         h_ = self.tanh(self.h_linear(torch.cat(((r * torch.cat((hidden[0], hidden[1], hidden[2]))), input_s))))
         h = z2 * hidden[1] + z3 * hidden[0] + z4 * hidden[2] + h_ * z1
-        # print(z2*hidden[1],z3*hidden[0],z4*hidden[2],h_*z1)
-        # print("h",h)
         return h
 
     def init_hidden(self, all_hidden, i, j):
@@ -192,9 +178,9 @@ class MatchSRNN(nn.Module):
             return all_hidden[i - 1][j], all_hidden[i][j - 1], all_hidden[i - 1][j - 1]
 
     def forward(self, input1, input2):
-        batch_all_hidden = []
         for t in range(input1.size(0)):
             count = 0
+            time = datetime.datetime.now()
             for i in range(MAX_SQE_LEN):
                 for j in range(MAX_SQE_LEN):
                     if count == 0:
@@ -225,6 +211,8 @@ class MatchSRNN(nn.Module):
                 out = hidden.unsqueeze(0)
             else:
                 out = torch.cat((out, hidden.unsqueeze(0)), dim=0)
+        time2 = datetime.datetime.now()
+        print("run time:", time2 - time)
         print("out:", out)
         # print("ba:",batch_all_hidden[:][input1[t].size(0) - 1][input2[t].size(0) - 1])
         out = self.lastlinear(out)
