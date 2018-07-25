@@ -206,11 +206,16 @@ class MatchSRNN(nn.Module):
             s = s.view(MAX_SQE_LEN, MAX_SQE_LEN, -1)
             # print("s:", s)
             all_hidden = [[] for i in range(MAX_SQE_LEN)]
+            new_tensor = torch.zeros(self.hidden_dim).to(DEVICE)
             for i in range(MAX_SQE_LEN):
-                for j in range(MAX_SQE_LEN):
+                all_hidden[i][0] = new_tensor
+                all_hidden[0][i] = new_tensor
+            for i in range(1, MAX_SQE_LEN):
+                for j in range(1, MAX_SQE_LEN):
                     # print(self.init_hidden(all_hidden,i,j))
-                    hidden = self.spatialRNN(s[i][j], self.init_hidden(all_hidden, i, j))
-                    all_hidden[i].append(hidden)
+                    hidden = self.spatialRNN(s[i][j],
+                                             [all_hidden[i - 1][j], all_hidden[i][j - 1], all_hidden[i - 1][j - 1]])
+                    all_hidden[i][j] = hidden
             batch_all_hidden.append(all_hidden)
         for t in range(BATCH_SIZE):
             if t == 0:
