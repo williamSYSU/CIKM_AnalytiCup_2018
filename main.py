@@ -12,7 +12,7 @@ from modelNet import Text2Image
 if __name__ == '__main__':
     # 可调超参
     parser = argparse.ArgumentParser()
-    parser.add_argument('-m', '--model_name', default='bi_lstm', type=str,
+    parser.add_argument('-m', '--model_name', default='text2image', type=str,
                         help='model: bi_lstm, lstm, srnn, text2image')
     parser.add_argument('--optim', default='sgd', type=str,
                         help='sgd, asgd, adam, adagrad and etc.')
