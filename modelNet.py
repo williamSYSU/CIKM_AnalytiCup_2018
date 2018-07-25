@@ -7,8 +7,8 @@ EMBEDDING_SIZE = 300
 HIDDEN_SIZE = 200
 TARGET_SIZE = 2
 DROPOUT_RATE = 0.5
-LEARNING_RATE = 0.05
-BATCH_SIZE = 32
+LEARNING_RATE = 0.01
+BATCH_SIZE = 3
 EPOCH_NUM = 300
 
 ENGLISH_TAG = 1  # 是否加入英语原语训练集，0：不加入；1：加入
@@ -18,6 +18,23 @@ DEVICE = torch.device('cuda:1' if torch.cuda.is_available() else 'cpu')
 
 MAX_SQE_LEN = 56  # 最长的句子词数
 END_OF_SEN = torch.ones(1, dtype=torch.float).new_full((1, EMBEDDING_SIZE), 0)
+
+
+def initParameter(opt):
+    global HIDDEN_SIZE, TARGET_SIZE, DROPOUT_RATE, LEARNING_RATE, BATCH_SIZE, \
+        EPOCH_NUM, ENGLISH_TAG, ENGLISH_SPANISH_RATE, TRAINTEST_RATE, \
+        DEVICE, MAX_SQE_LEN
+    HIDDEN_SIZE = opt.hidden_size
+    TARGET_SIZE = opt.target_size
+    DROPOUT_RATE = opt.dropout_rate
+    LEARNING_RATE = opt.learning_rate
+    BATCH_SIZE = opt.batch_size
+    EPOCH_NUM = opt.epoch_num
+    ENGLISH_TAG = opt.english_tag
+    ENGLISH_SPANISH_RATE = opt.english_spanish_rate
+    TRAINTEST_RATE = opt.train_test_rate
+    DEVICE = opt.device
+    MAX_SQE_LEN = opt.max_sqe_len
 
 
 # 两个lstm网络模型

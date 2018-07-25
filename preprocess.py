@@ -26,7 +26,8 @@ class CIMKDataset(Dataset):
 
 class CIMKDatasetReader:
     def __init__(self):
-        print('preparing dataset...')
+        print('=' * 100)
+        print('> Preparing dataset...')
 
         # 从本地加载词向量字典
         self.word_to_embedding = get_final_word_to_embedding()
@@ -106,7 +107,7 @@ def load_training_and_verify_pairs(pairs):
             pairs_false.append(pair)
     random.shuffle(pairs_true)
     random.shuffle(pairs_false)
-    print('<size>===total pairs: {}, true pairs: {}, false pairs: {}'.format(
+    print('>>> total pairs: {}, true pairs: {}, false pairs: {}'.format(
         len(pairs_true) + len(pairs_false), len(pairs_true), len(pairs_false)))
 
     # 按比例取训练集和验证集
@@ -115,7 +116,7 @@ def load_training_and_verify_pairs(pairs):
     verify_pairs = pairs_true[int(len(pairs_true) * modelNet.TRAINTEST_RATE):] + \
                    pairs_false[int(len(pairs_false) * modelNet.TRAINTEST_RATE):]
 
-    print('<size>===training pairs: {}, verify pairs: {}'.format(
+    print('>>> training pairs: {}, verify pairs: {}'.format(
         len(training_pairs), len(verify_pairs)))
 
     random.shuffle(training_pairs)
