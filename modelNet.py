@@ -217,7 +217,7 @@ class Text2Image(nn.Module):
         self.conv2_3 = nn.Conv2d(1, 1, 3, padding=0)
         self.fc1 = nn.Linear(8 * 8 * 1, 30)
         # self.fc1 = nn.Linear(CONV_TARGET * CONV_TARGET * CHANNEL_SIZE, 100)
-        self.fc2 = nn.Linear(30, 1)
+        self.fc2 = nn.Linear(30, 2)
         # self.fc3 = nn.Linear(30, TARGET_SIZE)
         self.dropout = nn.Dropout(DROPOUT_RATE)
         self.softmax = nn.Softmax(dim=1)
@@ -290,9 +290,9 @@ class Text2Image(nn.Module):
         reshape_matrix = F.max_pool2d(reshape_matrix, (2, 2))
         reshape_matrix = reshape_matrix.view(-1, self.num_flat_features(reshape_matrix))
         reshape_matrix = F.tanh(self.fc1(reshape_matrix))
-        reshape_matrix = F.sigmoid(self.fc2(reshape_matrix))
+        reshape_matrix = F.tanh(self.fc2(reshape_matrix))
         # matrix_x = self.fc3(matrix_x)
-        reshape_matrix = F.sigmoid(reshape_matrix)
+        reshape_matrix = self.softmax(reshape_matrix)
         return reshape_matrix
 
     def num_flat_features(self, x):
