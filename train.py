@@ -26,7 +26,7 @@ class Instructor:
         self.train_data_loader = DataLoader(
             dataset=cimk_dataset.train_data,
             batch_size=opt.batch_size,
-            shuffle=False,
+            shuffle=True,
             drop_last=True,
             num_workers=4
         )
@@ -69,7 +69,7 @@ class Instructor:
                 input2 = sample_batch['input2'].to(modelNet.DEVICE)
                 label = sample_batch['label'].to(modelNet.DEVICE)
 
-                outputs = self.model(input1, input2)[:, 1].view(-1)
+                outputs = self.model(input1, input2)[:, 0].view(-1)
 
                 loss = self.criterion(outputs, label)
                 sum_loss += loss
@@ -94,7 +94,7 @@ class Instructor:
                 input2 = sample_batch['input2'].to(modelNet.DEVICE)
                 label = sample_batch['label'].to(modelNet.DEVICE)
 
-                outputs = self.model(input1, input2)[:, 1].view(-1)
+                outputs = self.model(input1, input2)[:, 0].view(-1)
                 if idx is 5:
                     print('output: {}, label: {}'.format(outputs, label))
 
@@ -119,7 +119,7 @@ class Instructor:
                 input2 = sample_batch['input2'].to(modelNet.DEVICE)
                 label = sample_batch['label'].to(modelNet.DEVICE)
 
-                outputs = self.model(input1, input2)[:, 1].view(-1)
+                outputs = self.model(input1, input2)[:, 0].view(-1)
 
                 loss = self.criterion(outputs, label)
                 sum_loss += loss
@@ -137,7 +137,7 @@ class Instructor:
             input1 = sample_batch['input1'].to(modelNet.DEVICE)
             input2 = sample_batch['input2'].to(modelNet.DEVICE)
 
-            outputs = self.model(input1, input2)[:, 1].view(-1)
+            outputs = self.model(input1, input2)[:, 0].view(-1)
 
             save_result_filename = 'Result/test_result_' + str(modelNet.ENGLISH_TAG) + '_' + str(
                 self.final_avg_loss) + '.txt'

@@ -17,7 +17,7 @@ if __name__ == '__main__':
     parser.add_argument('--optim', default='sgd', type=str,
                         help='sgd, asgd, adam, adagrad and etc.')
     parser.add_argument('--hidden_size', default=200, type=int, help='Hidden size in LSTM')
-    parser.add_argument('--target_size', default=2, type=int, help='Target size in last layer')
+    parser.add_argument('--target_size', default=1, type=int, help='Target size in last layer')
     parser.add_argument('-d', '--dropout_rate', default=0.1, type=float, help='Dropout rate in training')
     parser.add_argument('-l', '--learning_rate', default=0.01, type=float, help='Learning rate in training')
     parser.add_argument('-b', '--batch_size', default=8, type=int, help='Batch size in training and verifying')
