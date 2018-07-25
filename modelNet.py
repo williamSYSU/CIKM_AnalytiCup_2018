@@ -127,20 +127,21 @@ class MatchSRNN(nn.Module):
         self.lastlinear = nn.Linear(self.hidden_dim, self.target)
 
     def getS(self, input1, input2):
-        out = []
-        for i in range(self.dimension):
-            tmp = torch.mm(input1.view(1, -1), self.T[i])
-            tmp = torch.mm(tmp, input2.view(-1, 1))
-            if i == 0:
-                out = tmp.view(-1)
-            else:
-                out = torch.cat((out, tmp.view(-1)))
-        add_input = torch.cat((input1.view(1, -1), input2.view(1, -1)), dim=1)
-        lin = self.Linear(add_input)
-        out = torch.add(out, lin.view(-1))
-        # out = F.cosine_similarity(input1.view(1, -1), input2.view(1, -1))
-        out = self.relu(out)
-        return out.view(1, -1)
+        # out = []
+        # for i in range(self.dimension):
+        #     tmp = torch.mm(input1.view(1, -1), self.T[i])
+        #     tmp = torch.mm(tmp, input2.view(-1, 1))
+        #     if i == 0:
+        #         out = tmp.view(-1)
+        #     else:
+        #         out = torch.cat((out, tmp.view(-1)))
+        # add_input = torch.cat((input1.view(1, -1), input2.view(1, -1)), dim=1)
+        # lin = self.Linear(add_input)
+        # out = torch.add(out, lin.view(-1))
+        # # out = F.cosine_similarity(input1.view(1, -1), input2.view(1, -1))
+        # out = self.relu(out)
+        # return out.view(1, -1)
+        return torch.randn(1, self.dimension)
 
     def softmaxbyrow(self, input):
         input = input.view(4, -1)
