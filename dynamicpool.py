@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+import modelNet
 
 
 class DynamicPool:
@@ -38,17 +39,21 @@ class DynamicPool:
 
     @staticmethod
     def cal_similar_matrix(sentence_1, sentence_2):
-        likelihood_matrix = np.zeros((len(sentence_1), len(sentence_2)))
-        sentence1 = sentence_1.numpy()
-        sentence2 = sentence_2.numpy()
-        # 计算相似度矩阵，由embedding计算得到
-        for i in range(len(sentence1)):
-            for j in range(len(sentence2)):
-                # 两种相似度矩阵计算方法
-                # likelihood_matrix[i][j] = np.dot(sentence1[i], sentence2[j]) / (
-                #             np.linalg.norm(sentence1[i], ord=2) * np.linalg
-                #             .norm(sentence2[j], ord=2))
-                likelihood_matrix[i][j] = np.dot(sentence1[i], sentence2[j])
+        SIZE = len(sentence_1)
+        likelihood_matrix = torch.zeros(SIZE, 56, 56).to(modelNet.DEVICE)
+        # sentence1 = sentence_1.numpy()
+        # sentence2 = sentence_2.numpy()
 
-        likelihood_matrix = torch.tensor(likelihood_matrix).view(1, 1, len(sentence_1), len(sentence_2)).float()
-        return likelihood_matrix
+        for simple_batch in range(SIZE):
+            likelihood_matrix[simple_batch] = sentence_1[simple_batch].mm(sentence_2[simple_batch].t())
+        # 计算相似度矩阵，由embedding计算得到
+        # for i in range(len(sentence1)):
+        #     for j in range(len(sentence2)):
+        #         # 两种相似度矩阵计算方法
+        #         # likelihood_matrix[i][j] = np.dot(sentence1[i], sentence2[j]) / (
+        #         #             np.linalg.norm(sentence1[i], ord=2) * np.linalg
+        #         #             .norm(sentence2[j], ord=2))
+        #         likelihood_matrix[i][j] = np.dot(sentence1[i], sentence2[j])
+
+        likelihood_matrix = likelihood_matrix.view(SIZE, 1, 56, 56)
+        return likelihood_matrix, SIZE

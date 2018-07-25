@@ -36,7 +36,7 @@ class Instructor:
             num_workers=4
         )
 
-        self.model = modelNet.Bi_LSTM().to(modelNet.DEVICE)
+        self.model = modelNet.Text2Image().to(modelNet.DEVICE)
         self.criterion = nn.BCELoss()
         self.optimizer = optim.SGD(self.model.parameters(), lr=modelNet.LEARNING_RATE)
 
@@ -125,7 +125,6 @@ class Instructor:
         print('=' * 100)
         print('Begin test and save model......')
         for idx, sample_batch in enumerate(self.test_data_loader):
-
             input1 = sample_batch['input1'].to(modelNet.DEVICE)
             input2 = sample_batch['input2'].to(modelNet.DEVICE)
 
