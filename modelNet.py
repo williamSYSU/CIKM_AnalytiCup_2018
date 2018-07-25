@@ -158,12 +158,13 @@ class MatchSRNN(nn.Module):
         return h
 
     def init_hidden(self, all_hidden, i, j):
+        new_tensor = torch.zeros(self.hidden_dim).to(DEVICE)
         if i == 0 and j == 0:
-            return [torch.zeros(self.hidden_dim), torch.zeros(self.hidden_dim), torch.zeros(self.hidden_dim)]
+            return [new_tensor, new_tensor, new_tensor]
         elif i == 0:
-            return [torch.zeros(self.hidden_dim), all_hidden[i][j - 1], torch.zeros(self.hidden_dim)]
+            return [new_tensor, all_hidden[i][j - 1], new_tensor]
         elif j == 0:
-            return [all_hidden[i - 1][j], torch.zeros(self.hidden_dim), torch.zeros(self.hidden_dim)]
+            return [all_hidden[i - 1][j], new_tensor, new_tensor]
         else:
             return all_hidden[i - 1][j], all_hidden[i][j - 1], all_hidden[i - 1][j - 1]
 
