@@ -1,48 +1,70 @@
-import re
-
-import torch.nn as nn
 import torch.optim as optim
+import torch.cuda
+import argparse
 
-import load_data
+from train import Instructor
 import modelNet
-import preprocess
-import test
-import train
-
-
-class PARAMETER():
-    def __init__(self):
-        # 从本地加载word embedding词典
-        # self.word_to_embedding = load_data.loadEmbedVocab('preprocess/word_embedding.txt')
-        self.word_to_embedding = preprocess.get_final_word_to_embedding()
-
-        # 加载数据对集合
-        self.train_pairs = load_data.loadDataPairs('data/cikm_spanish_train_20180516.txt')
-        self.english_train_pairs = load_data.loadDataPairs('data/cikm_english_train_20180516.txt')
-        self.test_pairs = load_data.loadDataPairs('data/cikm_test_a_20180516.txt')
-
-        # 是否加入英语原语训练集
-        if modelNet.ENGLISH_TAG is 1:
-            self.train_pairs = self.train_pairs + self.english_train_pairs
-
-        # 划分训练集和验证集
-        self.train_pairs, self.verify_pairs = preprocess.load_training_and_verify_pairs(pairs=self.train_pairs)
-
-        self.model = modelNet.LSTM()
-        self.loss_function = nn.BCELoss()
-
-        self.optimizer = optim.SGD(self.model.parameters(), lr=modelNet.LEARNING_RATE)
-
+from modelNet import Bi_LSTM
+from modelNet import LSTM
+from modelNet import MatchSRNN
 
 if __name__ == '__main__':
-    lstm = PARAMETER()
+    # 可调超参
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--model_name', default='bi_lstm', type=str, help='bi_lstm, lstm, srnn')
+    parser.add_argument('--optim', default='sgd', type=str, help='sgd, asgd, adam, adagrad and etc.')
+    parser.add_argument('--hidden_size', default=200, type=int, help='Hidden size in LSTM')
+    parser.add_argument('--target_size', default=2, type=int, help='Target size in last layer')
+    parser.add_argument('--dropout_rate', default=0.1, type=float, help='Dropout rate in training')
+    parser.add_argument('--learning_rate', default=0.01, type=float, help='Learning rate in training')
+    parser.add_argument('--batch_size', default=8, type=int, help='Batch size in training and verifying')
+    parser.add_argument('--epoch_num', default=100, type=int, help='Number of epoch')
+    parser.add_argument('--english_tag', default=1, type=int, help='1:join English data; 0:leave English')
+    parser.add_argument('--english_spanish_rate', default=1, type=float,
+                        help='The ratio of English of Spanish in training')
+    parser.add_argument('--train_test_rate', default=0.7, type=float, help='The ratio of train data to verify data')
+    parser.add_argument('--device', default=None, type=str, help='Choose device to run')
+    parser.add_argument('--max_sqe_len', default=56, type=int, help='Max length of all sentences')
+    opt = parser.parse_args()
 
+    # 模型种类
+    model_classes = {
+        'bi_lstm': Bi_LSTM,
+        'lstm': LSTM,
+        'srnn': MatchSRNN
+    }
+
+    # 优化器种类
+    optimizers = {
+        'adadelta': optim.Adadelta,
+        'adagrad': optim.Adagrad,
+        'adam': optim.Adam,
+        'adamax': optim.Adamax,
+        'asgd': optim.ASGD,
+        'sgd': optim.SGD
+    }
+
+    # 损失函数种类
+
+    # 初始化其它参数
+    opt.model_class = model_classes[opt.model_name]
+    opt.optimizer = optimizers[opt.optim]
+    opt.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu') \
+        if opt.device is None else torch.device(opt.device)
+
+    # 初始化modelNet参数
+    modelNet.initParameter(opt)
+
+    instructor = Instructor(opt)
 
     # 显示训练前的结果
-    train.beforeTrain(parameter=lstm)
+    # instructor.beforeTrain()
 
     # 开始训练模型
-    train.beginTrain(parameter=lstm)
+    # instructor.beginTrain()
 
     # 显示训练后在验证集上的结果
-    test.verifyAfterTrainning(parameter=lstm)
+    instructor.verifyModel()
+
+    # 运行测试集，保存模型
+    instructor.testModel()

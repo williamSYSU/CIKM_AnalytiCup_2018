@@ -88,9 +88,16 @@ def loadEmbedVocab(filename, mode='r'):
 
 
 # 从本地加载数据对集合
-def loadDataPairs(filename):
+def loadDataPairs(filename, loc1, loc2):
     lines = open(filename, encoding='utf-8').read().strip().split('\n')
-    pairs = [[normalizeString(s) for s in line.split('\t')] for line in lines]
+    # pairs = [[normalizeString(s) for s in line.split('\t')] for line in lines]
+    pairs = []
+    for line in lines:
+        items = line.split('\t')
+        pair = [normalizeString(items[loc1]), normalizeString(items[loc2])]
+        if len(items) > 2:
+            pair.append(items[4])
+        pairs.append(pair)
     return pairs
 
 
