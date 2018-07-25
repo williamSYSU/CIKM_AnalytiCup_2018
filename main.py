@@ -13,7 +13,7 @@ if __name__ == '__main__':
     # 可调超参
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', '--model_name', default='bi_lstm', type=str,
-                        help='> model: bi_lstm, lstm, srnn, text2image\n> default:bi_lstm')
+                        help='> model: bi_lstm, lstm, srnn, text2image \n> default:bi_lstm')
     parser.add_argument('-l', '--learning_rate', default=0.01, type=float, help='> default:0.01')
     parser.add_argument('-e', '--epoch_num', default=100, type=int, help='> default:100')
     parser.add_argument('-b', '--batch_size', default=16, type=int, help='> default:16')
@@ -27,7 +27,7 @@ if __name__ == '__main__':
     parser.add_argument('--english_spanish_rate', default=1, type=float, help='> default:1')
     parser.add_argument('--train_test_rate', default=0.7, type=float, help='> default:0.7')
     parser.add_argument('--max_sqe_len', default=56, type=int, help='> default:56')
-    parser.add_argument('--conv_channel', default=3, type=int, help='> default:6')
+    parser.add_argument('--conv_channel', default=3, type=int, help='> default:3')
     parser.add_argument('--conv_target', default=18, type=int, help='> default:18')
     opt = parser.parse_args()
 
