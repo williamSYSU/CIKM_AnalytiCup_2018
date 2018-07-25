@@ -1,10 +1,9 @@
 import torch
 import torch.nn as nn
-import torch.optim as optim
 from torch.utils.data import DataLoader
+from tensorboardX import SummaryWriter
 
 import modelNet
-import preprocess
 from preprocess import CIMKDatasetReader
 
 restore_loss = []
@@ -47,6 +46,7 @@ class Instructor:
         self.model = opt.model_class().to(opt.device)
         self.criterion = nn.BCELoss()
         self.optimizer = opt.optimizer(self.model.parameters(), lr=modelNet.LEARNING_RATE)
+        self.writer = SummaryWriter(log_dir=opt.log_dir)
 
     # 去除填充字符
     @staticmethod
@@ -80,7 +80,6 @@ class Instructor:
         print('=' * 100)
         print('> Begin learning......')
 
-        pos = -1
         for epoch in range(modelNet.EPOCH_NUM):
             print('>' * 100)
             loss = torch.tensor([0], dtype=torch.float)
@@ -103,6 +102,8 @@ class Instructor:
                 self.optimizer.step()
             print('> epoch {} of {} loss: {}'.format(epoch + 1, modelNet.EPOCH_NUM, loss.item()))
             restore_loss.append(loss.item())
+            self.writer.add_scalar('loss', loss, epoch)
+        self.writer.close()
 
     # 在验证集上验证
     def verifyModel(self):
