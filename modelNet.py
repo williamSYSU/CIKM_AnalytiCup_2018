@@ -113,7 +113,7 @@ class MatchSRNN(nn.Module):
     def __init__(self):
         super(MatchSRNN, self).__init__()
         print('Current model: Match-SpatialRNN')
-        self.dimension = 3
+        self.dimension = 1
         self.hidden_dim = 5
         self.target = 2
         self.T = torch.nn.Parameter(torch.randn(self.dimension, 300, 300))
