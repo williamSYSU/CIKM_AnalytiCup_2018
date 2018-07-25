@@ -178,9 +178,10 @@ class MatchSRNN(nn.Module):
             return all_hidden[i - 1][j], all_hidden[i][j - 1], all_hidden[i - 1][j - 1]
 
     def forward(self, input1, input2):
+        time = datetime.datetime.now()
         for t in range(input1.size(0)):
             count = 0
-            time = datetime.datetime.now()
+
             for i in range(MAX_SQE_LEN):
                 for j in range(MAX_SQE_LEN):
                     if count == 0:
@@ -212,11 +213,13 @@ class MatchSRNN(nn.Module):
             else:
                 out = torch.cat((out, hidden.unsqueeze(0)), dim=0)
         time2 = datetime.datetime.now()
-        print("run time:", time2 - time)
+        print("run time:", time2 - time, time2, time)
         print("out:", out)
         # print("ba:",batch_all_hidden[:][input1[t].size(0) - 1][input2[t].size(0) - 1])
         out = self.lastlinear(out)
         out = F.softmax(out, dim=1)
+        print("run time:", time2 - time, time2, time)
+        print("out:", out)
         return out
 
 
