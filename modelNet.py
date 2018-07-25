@@ -121,6 +121,7 @@ class MatchSRNN(nn.Module):
         self.relu = nn.ReLU()
         self.qrLinear = nn.Linear(3 * self.hidden_dim + self.dimension, 3 * self.hidden_dim)
         self.qzLinear = nn.Linear(3 * self.hidden_dim + self.dimension, 4 * self.hidden_dim)
+        self.qhLinear = nn.Linear(3 * self.hidden_dim + self.dimension, self.hidden_dim)
         # self.U = torch.nn.Parameter(torch.randn(self.hidden_dim, 3 * self.hidden_dim))
         self.h_linear = nn.Linear(self.dimension + 3 * self.hidden_dim, self.hidden_dim)
         self.tanh = nn.Tanh()
@@ -138,10 +139,9 @@ class MatchSRNN(nn.Module):
         # add_input = torch.cat((input1.view(1, -1), input2.view(1, -1)), dim=1)
         # lin = self.Linear(add_input)
         # out = torch.add(out, lin.view(-1))
-        # # out = F.cosine_similarity(input1.view(1, -1), input2.view(1, -1))
-        # out = self.relu(out)
-        # return out.view(1, -1)
-        return torch.randn(1, self.dimension)
+        out = F.cosine_similarity(input1.view(1, -1), input2.view(1, -1))
+        out = self.relu(out)
+        return out.view(1, -1)
 
     def softmaxbyrow(self, input):
         input = input.view(4, -1)
@@ -161,15 +161,15 @@ class MatchSRNN(nn.Module):
         return z1, z2, z3, z4
 
     def spatialRNN(self, input_s, hidden):
-        # q = torch.cat((torch.cat((hidden[0], hidden[1])), torch.cat((hidden[2], input_s))))
+        q = torch.cat((torch.cat((hidden[0], hidden[1])), torch.cat((hidden[2], input_s))))
         # r = F.sigmoid(self.qrLinear(q))
         # z = self.qzLinear(q)
         # z = F.sigmoid(z)
         # z1, z2, z3, z4 = self.softmaxbyrow(z)
         # h_ = self.tanh(self.h_linear(torch.cat(((r * torch.cat((hidden[0], hidden[1], hidden[2]))), input_s))))
         # h = z2 * hidden[1] + z3 * hidden[0] + z4 * hidden[2] + h_ * z1
-        h = torch.randn(self.hidden_dim).to(DEVICE)
-        return h
+        h = self.qhLinear(q)
+        return h.view(-1)
 
     def init_hidden(self, all_hidden, i, j):
         new_tensor = torch.zeros(self.hidden_dim).to(DEVICE)
