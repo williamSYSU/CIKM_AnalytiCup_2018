@@ -204,7 +204,7 @@ class MatchSRNN(nn.Module):
                         s_ij = self.getS(input1[t][i], input2[t][j])
                         s = torch.cat((s_ij, s), dim=0)
             s = s.view(MAX_SQE_LEN, MAX_SQE_LEN, -1)
-            print("s:", s)
+            # print("s:", s)
             all_hidden = [[] for i in range(MAX_SQE_LEN)]
             for i in range(MAX_SQE_LEN):
                 for j in range(MAX_SQE_LEN):
@@ -217,7 +217,7 @@ class MatchSRNN(nn.Module):
                 out = batch_all_hidden[t][-1][-1].unsqueeze(0)
             else:
                 out = torch.cat((out, batch_all_hidden[t][-1][-1].unsqueeze(0)), dim=0)
-        print("out:", out)
+        # print("out:", out)
         # print("ba:",batch_all_hidden[:][input1[t].size(0) - 1][input2[t].size(0) - 1])
         out = self.lastlinear(out)
         out = F.softmax(out, dim=1)
