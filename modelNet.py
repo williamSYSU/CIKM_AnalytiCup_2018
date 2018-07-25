@@ -226,7 +226,7 @@ class Text2Image(nn.Module):
     def forward(self, sentence_1, sentence_2):
         matrix_x, size = DynamicPool.cal_similar_matrix(sentence_1, sentence_2)
         matrix_x.view(size, -1, MAX_SQE_LEN, MAX_SQE_LEN)
-        matrix_x = F.relu(self.conv1(matrix_x))
+        matrix_x = F.tanh(self.conv1(matrix_x))
 
         # 暂时用不到的动态pooling
 
@@ -284,7 +284,7 @@ class Text2Image(nn.Module):
         need_matrix = matrix_x[:, 2, :, :].view(size, 1, CONV_TARGET, CONV_TARGET)
         mat2_3 = self.conv2_1(need_matrix)
 
-        reshape_matrix = F.relu(mat2_1 + mat2_2 + mat2_3)
+        reshape_matrix = F.tanh(mat2_1 + mat2_2 + mat2_3)
 
         reshape_matrix = self.dropout(reshape_matrix)
         reshape_matrix = F.max_pool2d(reshape_matrix, (2, 2))
