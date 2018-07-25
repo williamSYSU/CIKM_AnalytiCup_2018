@@ -100,8 +100,17 @@ class LSTM(nn.Module):
         out1, hidden1 = self.lstm1(input1)
         out2, hidden2 = self.lstm2(input2)
 
-        merge = torch.cat((out1[0][-1], out2[0][-1]), dim=0)
-        out = self.dense1(merge)
+        # 当batch_size > 1时，需要根据batch_size手动合并
+        all_merge = []
+        for idx in range(len(out1)):
+            merge = torch.cat((out1[idx][-1], out2[idx][-1]), dim=0)
+            if idx is 0:
+                all_merge = merge.unsqueeze(0)
+            else:
+                all_merge = torch.cat((all_merge, merge.unsqueeze(0)), dim=0)
+
+        # merge = torch.cat((out1[0][-1], out2[0][-1]), dim=0)
+        out = self.dense1(all_merge)
         out = self.dense2(out)
         out = self.dense3(out)
         out = self.dropout(out)
