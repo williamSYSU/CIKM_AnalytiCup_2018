@@ -222,7 +222,7 @@ class MatchSRNN(nn.Module):
         out = F.softmax(out, dim=1)
         time2 = datetime.datetime.now()
         print("run time:", time2 - time, time2, time)
-        print("out:", out)
+        # print("out:", out)
         return out
 
 
