@@ -2,14 +2,17 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.cuda
+from dynamicpool import DynamicPool
 
 EMBEDDING_SIZE = 300
 HIDDEN_SIZE = 200
 TARGET_SIZE = 2
 DROPOUT_RATE = 0.1
-LEARNING_RATE = 0.01
-BATCH_SIZE = 32
-EPOCH_NUM = 100
+LEARNING_RATE = 0.05
+BATCH_SIZE = 20
+EPOCH_NUM = 300
+CONV_CHANNEL = 3
+CONV_TARGET = 18
 
 ENGLISH_TAG = 1  # 是否加入英语原语训练集，0：不加入；1：加入
 ENGLISH_SPANISH_RATE = 1  # 英语原语训练数据与西班牙原语训练数据的比例
@@ -216,3 +219,96 @@ class MatchSRNN(nn.Module):
         out = self.lastlinear(out)
         out = F.softmax(out, dim=0)
         return out
+
+
+class Text2Image(nn.Module):
+    def __init__(self):
+        super(Text2Image, self).__init__()
+        self.conv1 = nn.Conv2d(1, CONV_CHANNEL, 3, padding=0)
+        self.conv2_1 = nn.Conv2d(1, 1, 3, padding=0)
+        self.conv2_2 = nn.Conv2d(1, 1, 3, padding=0)
+        self.conv2_3 = nn.Conv2d(1, 1, 3, padding=0)
+        self.fc1 = nn.Linear(8 * 8 * 1, 30)
+        # self.fc1 = nn.Linear(CONV_TARGET * CONV_TARGET * CHANNEL_SIZE, 100)
+        self.fc2 = nn.Linear(30, 2)
+        # self.fc3 = nn.Linear(30, TARGET_SIZE)
+        self.dropout = nn.Dropout(DROPOUT_RATE)
+        self.softmax = nn.Softmax(dim=1)
+        self.target_pool = [CONV_TARGET, CONV_TARGET]
+
+    def forward(self, sentence_1, sentence_2):
+        matrix_x, size = DynamicPool.cal_similar_matrix(sentence_1, sentence_2)
+        matrix_x.view(size, -1, 56, 56)
+        matrix_x = F.relu(self.conv1(matrix_x))
+        # 暂时用不到的动态pooling
+        # origin_size1 = len(matrix_x[0][0])
+        # origin_size2 = len(matrix_x[0][0][0])
+        # # 填充卷积输出
+        # # print(matrix_x)
+        # while origin_size1 < self.target_pool[0]:
+        #     matrix_x = torch.cat([matrix_x, matrix_x[:, :, :origin_size1, :]], dim=2)
+        #     if len(matrix_x[0][0]) >= self.target_pool[0]:
+        #         break
+        #
+        # while origin_size2 < self.target_pool[1]:
+        #     matrix_x = torch.cat([matrix_x, matrix_x[:, :, :, :origin_size2]], dim=3)
+        #     if len(matrix_x[0][0][0]) >= self.target_pool[1]:
+        #         break
+        #
+        # dynamic_pool_size1 = len(matrix_x[0][0])
+        # dynamic_pool_size2 = len(matrix_x[0][0][0])
+        # get_index = DynamicPool(self.target_pool[0], self.target_pool[1], dynamic_pool_size1, dynamic_pool_size2)
+        # index, pool_size = get_index.d_pool_index()
+        # m, n, high_judge, weight_judge = get_index.cal(index)
+        # stride = pool_size[0]
+        # stride1 = pool_size[1]
+        #
+        # matrix_x1 = matrix_x[:, :, :m, :n]
+        # matrix_x1 = F.max_pool2d(matrix_x1, (stride, stride1))
+        #
+        # if high_judge > 0:
+        #     matrix_x2 = matrix_x[:, :, m:, :n]
+        #     matrix_x2 = F.max_pool2d(matrix_x2, (stride + 1, stride1))
+        # if weight_judge > 0:
+        #     matrix_x3 = matrix_x[:, :, :m, n:]
+        #     matrix_x3 = F.max_pool2d(matrix_x3, (stride, stride1 + 1))
+        # if high_judge > 0 and weight_judge > 0:
+        #     matrix_x4 = matrix_x[:, :, m:, n:]
+        #     matrix_x4 = F.max_pool2d(matrix_x4, (stride + 1, stride1 + 1))
+        #
+        # if high_judge == 0 and weight_judge == 0:
+        #     matrix_x = matrix_x1
+        # elif high_judge > 0 and weight_judge == 0:
+        #     matrix_x = torch.cat([matrix_x1, matrix_x2], dim=2)
+        # elif high_judge == 0 and weight_judge > 0:
+        #     matrix_x = torch.cat([matrix_x1, matrix_x3], dim=3)
+        # else:
+        #     matrix_x_1 = torch.cat([matrix_x1, matrix_x2], dim=2)
+        #     matrix_x_2 = torch.cat([matrix_x3, matrix_x4], dim=2)
+        #     matrix_x = torch.cat([matrix_x_1, matrix_x_2], dim=3)
+
+        matrix_x = F.max_pool2d(matrix_x, (3, 3))
+        need_matrix = matrix_x[:, 0, :, :].view(size, 1, CONV_TARGET, CONV_TARGET)
+        mat2_1 = self.conv2_1(need_matrix)
+        need_matrix = matrix_x[:, 1, :, :].view(size, 1, CONV_TARGET, CONV_TARGET)
+        mat2_2 = self.conv2_1(need_matrix)
+        need_matrix = matrix_x[:, 2, :, :].view(size, 1, CONV_TARGET, CONV_TARGET)
+        mat2_3 = self.conv2_1(need_matrix)
+
+        reshape_matrix = mat2_1 + mat2_2 + mat2_3
+
+        reshape_matrix = self.dropout(reshape_matrix)
+        reshape_matrix = F.max_pool2d(reshape_matrix, (2, 2))
+        reshape_matrix = reshape_matrix.view(-1, self.num_flat_features(reshape_matrix))
+        reshape_matrix = F.tanh(self.fc1(reshape_matrix))
+        reshape_matrix = F.sigmoid(self.fc2(reshape_matrix))
+        # matrix_x = self.fc3(matrix_x)
+        reshape_matrix = reshape_matrix
+        return reshape_matrix
+
+    def num_flat_features(self, x):
+        size = x.size()[1:]
+        num_features = 1
+        for s in size:
+            num_features *= s
+        return num_features

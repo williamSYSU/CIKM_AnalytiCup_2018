@@ -1,6 +1,6 @@
 import random
 import re
-from fuzzywuzzy import fuzz
+# from fuzzywuzzy import fuzz
 
 import torch
 import torch.nn as nn
@@ -221,29 +221,29 @@ def load_and_save_all_char_vocab():
 
 
 # 计算缺失的全是字母的词与词库中最近的词
-def embedding_missing_char_word():
-    missing_char_vocab = load_data.loadVocab('preprocess/missing_char_word.txt')
-    all_char_vocab = load_data.loadVocab('preprocess/database_all_word_vocab.txt')
-    all_char_list = []
-    for word in all_char_vocab:
-        all_char_list.append(word)
-
-    # 计算缺失词最相近的词
-    with open('preprocess/sim_word.txt', encoding='utf-8', mode='wt') as file:
-        for i, word in enumerate(missing_char_vocab):
-            sim_data = []
-            DIFF_WEIGHT = 2  # 长度对相似度的影响程度
-            for idx, item in enumerate(all_char_list):
-                value = fuzz.partial_ratio(word, item)
-                len_diff = abs(len(word) - len(item))
-                sim_value = value - DIFF_WEIGHT * len_diff  # 长度差距越大，相似值越小
-                sim_data.append(sim_value)
-            sim_idx = sim_data.index(max(sim_data))
-            max_value = max(sim_data)
-            sim_word = all_char_list[sim_idx]
-            print('word: {}, sim word: {}, sim_idx: {}, sim value: {}'.format(
-                word, sim_word, sim_idx, max_value))
-            file.write(word + ' ' + sim_word + '\n')
+# def embedding_missing_char_word():
+#     missing_char_vocab = load_data.loadVocab('preprocess/missing_char_word.txt')
+#     all_char_vocab = load_data.loadVocab('preprocess/database_all_word_vocab.txt')
+#     all_char_list = []
+#     for word in all_char_vocab:
+#         all_char_list.append(word)
+#
+#     # 计算缺失词最相近的词
+#     with open('preprocess/sim_word.txt', encoding='utf-8', mode='wt') as file:
+#         for i, word in enumerate(missing_char_vocab):
+#             sim_data = []
+#             DIFF_WEIGHT = 2  # 长度对相似度的影响程度
+#             for idx, item in enumerate(all_char_list):
+#                 value = fuzz.partial_ratio(word, item)
+#                 len_diff = abs(len(word) - len(item))
+#                 sim_value = value - DIFF_WEIGHT * len_diff  # 长度差距越大，相似值越小
+#                 sim_data.append(sim_value)
+#             sim_idx = sim_data.index(max(sim_data))
+#             max_value = max(sim_data)
+#             sim_word = all_char_list[sim_idx]
+#             print('word: {}, sim word: {}, sim_idx: {}, sim value: {}'.format(
+#                 word, sim_word, sim_idx, max_value))
+#             file.write(word + ' ' + sim_word + '\n')
 
 
 # 根据找到的相似词取词库中的词向量
