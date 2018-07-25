@@ -4,49 +4,93 @@ from fuzzywuzzy import fuzz
 
 import torch
 import torch.nn as nn
+from torch.utils.data import Dataset
+from torch.utils.data import DataLoader
 
 import load_data
 import modelNet
 
-device = torch.device("cuda:0")
+LABEL_INDEX = 2
+
+
+class CIMKDataset(Dataset):
+    def __init__(self, data):
+        self.data = data
+
+    def __getitem__(self, index):
+        return self.data[index]
+
+    def __len__(self):
+        return len(self.data)
+
+
+class CIMKDatasetReader:
+    def __init__(self):
+        print('preparing dataset...')
+
+        # 从本地加载词向量字典
+        self.word_to_embedding = get_final_word_to_embedding()
+
+        # 加载数据对集合
+        train_pairs = load_data.loadDataPairs('data/cikm_spanish_train_20180516.txt', loc1=0, loc2=2)
+        english_train_pairs = load_data.loadDataPairs('data/cikm_english_train_20180516.txt', loc1=1, loc2=3)
+        test_pairs = load_data.loadDataPairs('data/cikm_test_a_20180516.txt', loc1=0, loc2=1)
+
+        # 是否加入英语原语训练集
+        if modelNet.ENGLISH_TAG is 1:
+            train_pairs = train_pairs + english_train_pairs
+
+        # 划分训练集和验证集
+        train_pairs, verify_pairs = load_training_and_verify_pairs(pairs=train_pairs)
+
+        self.train_data = CIMKDataset(CIMKDatasetReader.__read_data__(train_pairs, self.word_to_embedding))
+        self.verify_data = CIMKDataset(CIMKDatasetReader.__read_data__(verify_pairs, self.word_to_embedding))
+        self.test_data = CIMKDataset(CIMKDatasetReader.__read_data__(test_pairs, self.word_to_embedding, isTest=1))
+
+    @staticmethod
+    def __read_data__(pairs, embedding, isTest=0):
+        all_data = []
+        for idx, pair in enumerate(pairs):
+            items = tensorsFromPair(pair, embedding, isTest)
+            data = {
+                'input1': items[0],
+                'input2': items[1]
+            }
+            # 当数据不是测试集要加入label
+            if isTest is 0:
+                data['label'] = items[2]
+            all_data.append(data)
+        return all_data
+
 
 # 把句子转为tensor
 def tensorFromSentence(sentence, embedding):
     tensors = []
-    for word in sentence.split(' '):
-        # print('word: ', word)
-        if word in embedding.keys():
+    for word in sentence.split():
+        if word != '':
             tensors.append(embedding[word])
-        else:
-            tensors.append(torch.rand(1, modelNet.EMBEDDING_SIZE))
-    tensor = tensors[0].view(1, -1)
+
+    # 填充句子
+    for i in range(len(sentence.split()), modelNet.MAX_SQE_LEN):
+        tensors.append(modelNet.END_OF_SEN)
+
+    # 拼接句子
+    final_tensors = tensors[0].view(1, -1)
     for i in range(1, len(tensors)):
-        tensor = torch.cat([tensor, tensors[i].view(1, -1)], dim=0)
-    return tensor
+        final_tensors = torch.cat([final_tensors, tensors[i].view(1, -1)], dim=0)
+    return final_tensors
+
 
 # 将数据对转化为相应的tensor
-def tensorsFromPair(pair, embedding):
-    input1_tensor = tensorFromSentence(pair[0], embedding)
-    input2_tensor = tensorFromSentence(pair[2], embedding)
-    # input_tensor=torch.cat((input1_tensor,input2_tensor),dim=0)
-    label = pair[4]
-    return input1_tensor, input2_tensor, label
-
-
-# 从数据对中选出对应西班牙语的数据对
-def tensorsFromPair_test(pair, embedding):
+def tensorsFromPair(pair, embedding, isTest=0):
     input1_tensor = tensorFromSentence(pair[0], embedding)
     input2_tensor = tensorFromSentence(pair[1], embedding)
-    # input_tensor = torch.cat((input1_tensor, input2_tensor), dim=0)
-    return input1_tensor, input2_tensor
 
-
-def tensorsFromPair_verify(pair, embedding):
-    input1_tensor = tensorFromSentence(pair[0], embedding)
-    input2_tensor = tensorFromSentence(pair[2], embedding)
-    # input_tensor = torch.cat((input1_tensor, input2_tensor), dim=0)
-    label = pair[4]
-    return input1_tensor, input2_tensor, label
+    if isTest is 0:
+        label = torch.tensor(float(pair[LABEL_INDEX]))
+        return input1_tensor, input2_tensor, label
+    else:  # 测试数据中没有Label
+        return input1_tensor, input2_tensor
 
 
 # 将训练数据一分为二，按比例划分训练集和验证集
@@ -56,7 +100,7 @@ def load_training_and_verify_pairs(pairs):
 
     # 分开正负样本
     for pair in pairs:
-        if pair[4] == '1':
+        if pair[LABEL_INDEX] == '1':
             pairs_true.append(pair)
         else:
             pairs_false.append(pair)
@@ -67,7 +111,7 @@ def load_training_and_verify_pairs(pairs):
 
     # 按比例取训练集和验证集
     training_pairs = pairs_true[0:int(len(pairs_true) * modelNet.TRAINTEST_RATE)] + \
-                     pairs_false[0:int(len(pairs_false) * 2)]
+                     pairs_false[0:int(len(pairs_false) * modelNet.TRAINTEST_RATE)]
     verify_pairs = pairs_true[int(len(pairs_true) * modelNet.TRAINTEST_RATE):] + \
                    pairs_false[int(len(pairs_false) * modelNet.TRAINTEST_RATE):]
 
@@ -226,6 +270,7 @@ def get_sim_word_embedding():
     load_data.saveEmbedVocab(sim_word_embedding, 'preprocess/sim_word_embedding.txt')
 
 
+# 整合所有的词向量，包含缺失词的词向量
 def get_final_word_to_embedding():
     word_to_embedding = load_data.loadEmbedVocab('preprocess/word_embedding.txt')
 
@@ -239,3 +284,12 @@ def get_final_word_to_embedding():
         word_to_embedding[word] = missing_digit_embedding[word]
 
     return word_to_embedding
+
+
+# 统计最长的句子词数
+def count_max_len_of_sentence(pairs):
+    max_len = 0
+    for pair in pairs:
+        max_len = max(max_len, len(pair[0].split()))
+        max_len = max(max_len, len(pair[1].split()))
+    return max_len
