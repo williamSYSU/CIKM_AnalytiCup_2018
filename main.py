@@ -12,7 +12,7 @@ from modelNet import Text2Image
 if __name__ == '__main__':
     # 可调超参
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model_name', default='bi_lstm', type=str, help='bi_lstm, lstm, srnn')
+    parser.add_argument('--model_name', default='text2image', type=str, help='bi_lstm, lstm, srnn')
     parser.add_argument('--optim', default='sgd', type=str, help='sgd, asgd, adam, adagrad and etc.')
     parser.add_argument('--hidden_size', default=200, type=int, help='Hidden size in LSTM')
     parser.add_argument('--target_size', default=2, type=int, help='Target size in last layer')
@@ -60,10 +60,10 @@ if __name__ == '__main__':
     instructor = Instructor(opt)
 
     # 显示训练前的结果
-    # instructor.beforeTrain()
+    instructor.beforeTrain()
 
     # 开始训练模型
-    # instructor.beginTrain()
+    instructor.beginTrain()
 
     # 显示训练后在验证集上的结果
     instructor.verifyModel()
