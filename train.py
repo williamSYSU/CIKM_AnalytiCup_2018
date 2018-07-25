@@ -134,14 +134,18 @@ class Instructor:
             with open("Result/test_result_" + str(modelNet.ENGLISH_TAG) + "_" + str(final_avg_loss) + ".txt", 'a') as f:
                 f.write(str(outputs[0].item()) + "\n")
 
-            # 保存模型参数以及Loss
-            with open("save_model/data_" + str(modelNet.ENGLISH_TAG) + "_" + str(final_avg_loss) + ".txt", 'w') as f:
-                f.write("English tag:" + str(modelNet.ENGLISH_TAG) + "\n")
-                f.write("learning rate:" + str(modelNet.LEARNING_RATE) + "\n")
-                f.write("dropout rate:" + str(modelNet.DROPOUT_RATE) + "\n")
-                f.write("training rate:" + str(modelNet.TRAINTEST_RATE) + "\n")
-                f.write("epoch num:" + str(restore_data['epoch_num']) + "\n")
-                for i in range(restore_data['epoch_num']):
-                    f.write("epoch " + str(i) + "  loss:" + str(restore_data['epoch' + str(i) + 'loss']) + "\n")
+        # 保存模型
+        path = 'save_model/model_' + str(modelNet.ENGLISH_TAG) + "_" + str(final_avg_loss) + '.pkl'
+        torch.save(self.model, path)
 
-                f.write("test loss:" + str(final_avg_loss) + "\n")
+        # 保存模型参数以及Loss
+        with open("save_model/data_" + str(modelNet.ENGLISH_TAG) + "_" + str(final_avg_loss) + ".txt", 'w') as f:
+            f.write("English tag:" + str(modelNet.ENGLISH_TAG) + "\n")
+            f.write("learning rate:" + str(modelNet.LEARNING_RATE) + "\n")
+            f.write("dropout rate:" + str(modelNet.DROPOUT_RATE) + "\n")
+            f.write("training rate:" + str(modelNet.TRAINTEST_RATE) + "\n")
+            f.write("epoch num:" + str(restore_data['epoch_num']) + "\n")
+            for i in range(restore_data['epoch_num']):
+                f.write("epoch " + str(i) + "  loss:" + str(restore_data['epoch' + str(i) + 'loss']) + "\n")
+
+            f.write("test loss:" + str(final_avg_loss) + "\n")
