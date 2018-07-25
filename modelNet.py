@@ -216,7 +216,7 @@ class MatchSRNN(nn.Module):
                     hidden = self.spatialRNN(s[i][j],
                                              [all_hidden[i - 1][j], all_hidden[i][j - 1], all_hidden[i - 1][j - 1]])
                     all_hidden[i][j] = hidden
-            print("all_hidden:", all_hidden)
+            # print("all_hidden:", all_hidden)
             if t == 0:
                 out = hidden.unsqueeze(0)
             else:
@@ -224,7 +224,9 @@ class MatchSRNN(nn.Module):
         print("out:", out)
         # print("ba:",batch_all_hidden[:][input1[t].size(0) - 1][input2[t].size(0) - 1])
         out = self.lastlinear(out)
+        print("out1:", out)
         out = F.softmax(out, dim=1)
+        print("out2:", out)
         return out
 
 
