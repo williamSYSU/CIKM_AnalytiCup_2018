@@ -139,11 +139,11 @@ class MatchSRNN(nn.Module):
         return z1, z2, z3, z4
 
     def spatialRNN(self, input_s, hidden):
-        q = torch.cat((torch.cat((hidden[0], hidden[1])), torch.cat((hidden[2], input_s))))
-        r = F.sigmoid(self.qrLinear(q))
+        q = torch.cat((torch.cat((hidden[0], hidden[1])), torch.cat((hidden[2], input_s)))).to(DEVICE)
+        r = F.sigmoid(self.qrLinear(q)).to(DEVICE)
         # print("q:",q)
-        z = self.qzLinear(q)
-        z1, z2, z3, z4 = self.softmaxbyrow(z)
+        z = self.qzLinear(q).to(DEVICE)
+        z1, z2, z3, z4 = self.softmaxbyrow(z).to(DEVICE)
         # print("r:",r)
         # print("qwe:",torch.cat((hidden[0], hidden[1], hidden[2])))
         # print("sd:",torch.mm(self.U,(r*torch.cat((hidden[0],hidden[1],hidden[2]))).view(-1,1)).view(-1))
@@ -151,8 +151,8 @@ class MatchSRNN(nn.Module):
         h_ = self.tanh(self.h_linear(input_s) + torch.mm(self.U,
                                                          (r * torch.cat((hidden[0], hidden[1], hidden[2]))).view(-1,
                                                                                                                  1)).view(
-            -1))
-        h = z2 * hidden[1] + z3 * hidden[0] + z4 * hidden[2] + h_ * z1
+            -1)).to(DEVICE)
+        h = (z2 * hidden[1] + z3 * hidden[0] + z4 * hidden[2] + h_ * z1).to(DEVICE)
         # print(z2*hidden[1],z3*hidden[0],z4*hidden[2],h_*z1)
         # print("h",h)
         return h
@@ -185,7 +185,7 @@ class MatchSRNN(nn.Module):
             for i in range(input1[t].size(0)):
                 for j in range(input2[t].size(0)):
                     # print(self.init_hidden(all_hidden,i,j))
-                    hidden = self.spatialRNN(s[i][j], self.init_hidden(all_hidden, i, j))
+                    hidden = self.spatialRNN(s[i][j], self.init_hidden(all_hidden, i, j)).to(DEVICE)
                     all_hidden[i].append(hidden)
             batch_all_hidden.append(all_hidden)
         for t in range(BATCH_SIZE):
