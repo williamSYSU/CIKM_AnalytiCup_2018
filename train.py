@@ -145,3 +145,5 @@ class Instructor:
                     f.write("epoch " + str(i) + "  loss:" + str(restore_data['epoch' + str(i) + 'loss']) + "\n")
 
                 f.write("test loss:" + str(final_avg_loss) + "\n")
+        print('=' * 100)
+        print('Finished!')
