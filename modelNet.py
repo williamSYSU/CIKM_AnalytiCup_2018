@@ -205,7 +205,7 @@ class MatchSRNN(nn.Module):
                         s = torch.cat((s_ij, s), dim=0)
             s = s.view(MAX_SQE_LEN, MAX_SQE_LEN, -1)
             # print("s:", s)
-            all_hidden = [[] for i in range(MAX_SQE_LEN)]
+            all_hidden = [([] * MAX_SQE_LEN) for i in range(MAX_SQE_LEN)]
             new_tensor = torch.zeros(self.hidden_dim).to(DEVICE)
             for i in range(MAX_SQE_LEN):
                 all_hidden[i][0] = new_tensor
