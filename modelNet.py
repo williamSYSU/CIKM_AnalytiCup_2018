@@ -58,6 +58,7 @@ class Bi_LSTM(nn.Module):
         self.stm = nn.Sigmoid()
 
     def forward(self, input1, input2):
+        time = datetime.datetime.now()
         out1, (_, _) = self.bi_lstm_context1(input1)
         out2, (_, _) = self.bi_lstm_context2(input2)
 
@@ -75,6 +76,8 @@ class Bi_LSTM(nn.Module):
         out = self.dense3(out)
         out = self.dropout(out)
         out = self.stm(out)
+        time2 = datetime.datetime.now()
+        print("run time:", time2 - time, time2, time)
         return out
 
 
@@ -212,12 +215,10 @@ class MatchSRNN(nn.Module):
                 out = hidden.unsqueeze(0)
             else:
                 out = torch.cat((out, hidden.unsqueeze(0)), dim=0)
-        time2 = datetime.datetime.now()
-        print("run time:", time2 - time, time2, time)
-        print("out:", out)
         # print("ba:",batch_all_hidden[:][input1[t].size(0) - 1][input2[t].size(0) - 1])
         out = self.lastlinear(out)
         out = F.softmax(out, dim=1)
+        time2 = datetime.datetime.now()
         print("run time:", time2 - time, time2, time)
         print("out:", out)
         return out
