@@ -216,7 +216,7 @@ class MatchSRNN(nn.Module):
                     hidden = self.spatialRNN(s[i][j],
                                              [all_hidden[i - 1][j], all_hidden[i][j - 1], all_hidden[i - 1][j - 1]])
                     all_hidden[i][j] = hidden
-                    if i == MAX_SQE_LEN and j == MAX_SQE_LEN:
+                    if i == MAX_SQE_LEN - 1 and j == MAX_SQE_LEN - 1:
                         print("s and hidden :", s[i][j], all_hidden[i - 1][j], all_hidden[i][j - 1],
                               all_hidden[i - 1][j - 1])
                         print("last hidden:", hidden)
