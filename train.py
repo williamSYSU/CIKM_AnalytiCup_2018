@@ -152,11 +152,11 @@ class Instructor:
         save_para_file_name = 'save_model/data_' + str(modelNet.ENGLISH_TAG) + '_' + str(self.final_avg_loss) + '.txt'
         with open(save_para_file_name, 'w') as f:
             for arg in vars(self.opt):
-                f.write('>>> {}: {}'.format(arg, getattr(self.opt, arg)))
+                f.write('>>> {}: {} \n'.format(arg, getattr(self.opt, arg)))
 
             for i in range(len(restore_loss)):
-                f.write('> epoch {} of {} loss: {}'.format(
-                    str(i + 1), len(restore_loss), restore_loss[i]) + '\n')
+                f.write('> epoch {} of {} loss: {} \n'.format(
+                    str(i + 1), len(restore_loss), restore_loss[i]))
 
             f.write(">>>Final verify loss:" + str(self.final_avg_loss) + "\n")
 
