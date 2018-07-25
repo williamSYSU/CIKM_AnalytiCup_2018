@@ -20,20 +20,20 @@ class Instructor:
             batch_size=modelNet.BATCH_SIZE,
             shuffle=False,
             drop_last=True,
-            num_workers=2
+            num_workers=4
         )
         self.verify_data_loader = DataLoader(
             dataset=cimk_dataset.verify_data,
             batch_size=modelNet.BATCH_SIZE,
             shuffle=True,
             drop_last=True,
-            num_workers=2
+            num_workers=4
         )
         self.test_data_loader = DataLoader(
             dataset=cimk_dataset.test_data,
             batch_size=1,
             shuffle=False,
-            num_workers=2
+            num_workers=4
         )
 
         self.model = modelNet.Bi_LSTM().to(modelNet.DEVICE)
@@ -62,7 +62,7 @@ class Instructor:
                 input2 = sample_batch['input2'].to(modelNet.DEVICE)
                 label = sample_batch['label'].to(modelNet.DEVICE)
 
-                outputs = self.model(input1, input2).index_select(1, torch.tensor([1])).view(-1)
+                outputs = self.model(input1, input2).index_select(1, torch.tensor([1]).to(modelNet.DEVICE)).view(-1)
 
                 loss = self.criterion(outputs, label)
                 sum_loss += loss
@@ -80,15 +80,15 @@ class Instructor:
             loss = torch.tensor([0], dtype=torch.float)
             for idx, sample_batch in enumerate(self.train_data_loader):
                 self.model.train()  # 切换模型至训练模式
-                self.optimizer.zero_grad()  # 清空积累的梯度
-                # self.model.zero_grad()
+                # self.optimizer.zero_grad()
+                self.model.zero_grad()  # 清空积累的梯度
 
                 # 取训练数据和标签
                 input1 = sample_batch['input1'].to(modelNet.DEVICE)
                 input2 = sample_batch['input2'].to(modelNet.DEVICE)
                 label = sample_batch['label'].to(modelNet.DEVICE)
 
-                outputs = self.model(input1, input2).index_select(1, torch.tensor([1])).view(-1)
+                outputs = self.model(input1, input2).index_select(1, torch.tensor([1]).to(modelNet.DEVICE)).view(-1)
                 if idx is 5:
                     print('output: {}, label: {}'.format(outputs, label))
 
@@ -113,7 +113,7 @@ class Instructor:
                 input2 = sample_batch['input2'].to(modelNet.DEVICE)
                 label = sample_batch['label'].to(modelNet.DEVICE)
 
-                outputs = self.model(input1, input2).index_select(1, torch.tensor([1])).view(-1)
+                outputs = self.model(input1, input2).index_select(1, torch.tensor([1]).to(modelNet.DEVICE)).view(-1)
 
                 loss = self.criterion(outputs, label)
                 sum_loss += loss
@@ -129,21 +129,23 @@ class Instructor:
             input1 = sample_batch['input1'].to(modelNet.DEVICE)
             input2 = sample_batch['input2'].to(modelNet.DEVICE)
 
-            outputs = self.model(input1, input2).index_select(1, torch.tensor([1])).view(-1)
+            outputs = self.model(input1, input2).index_select(1, torch.tensor([1]).to(modelNet.DEVICE)).view(-1)
 
             with open("Result/test_result_" + str(modelNet.ENGLISH_TAG) + "_" + str(final_avg_loss) + ".txt", 'a') as f:
                 f.write(str(outputs[0].item()) + "\n")
 
-            # 保存模型参数以及Loss
-            with open("save_model/data_" + str(modelNet.ENGLISH_TAG) + "_" + str(final_avg_loss) + ".txt", 'w') as f:
-                f.write("English tag:" + str(modelNet.ENGLISH_TAG) + "\n")
-                f.write("learning rate:" + str(modelNet.LEARNING_RATE) + "\n")
-                f.write("dropout rate:" + str(modelNet.DROPOUT_RATE) + "\n")
-                f.write("training rate:" + str(modelNet.TRAINTEST_RATE) + "\n")
-                f.write("epoch num:" + str(restore_data['epoch_num']) + "\n")
-                for i in range(restore_data['epoch_num']):
-                    f.write("epoch " + str(i) + "  loss:" + str(restore_data['epoch' + str(i) + 'loss']) + "\n")
+        # 保存模型
+        path = 'save_model/model_' + str(modelNet.ENGLISH_TAG) + "_" + str(final_avg_loss) + '.pkl'
+        torch.save(self.model, path)
 
-                f.write("test loss:" + str(final_avg_loss) + "\n")
-        print('=' * 100)
-        print('Finished!')
+        # 保存模型参数以及Loss
+        with open("save_model/data_" + str(modelNet.ENGLISH_TAG) + "_" + str(final_avg_loss) + ".txt", 'w') as f:
+            f.write("English tag:" + str(modelNet.ENGLISH_TAG) + "\n")
+            f.write("learning rate:" + str(modelNet.LEARNING_RATE) + "\n")
+            f.write("dropout rate:" + str(modelNet.DROPOUT_RATE) + "\n")
+            f.write("training rate:" + str(modelNet.TRAINTEST_RATE) + "\n")
+            f.write("epoch num:" + str(restore_data['epoch_num']) + "\n")
+            for i in range(restore_data['epoch_num']):
+                f.write("epoch " + str(i) + "  loss:" + str(restore_data['epoch' + str(i) + 'loss']) + "\n")
+
+            f.write("test loss:" + str(final_avg_loss) + "\n")
