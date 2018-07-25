@@ -195,19 +195,19 @@ class MatchSRNN(nn.Module):
         batch_all_hidden = []
         for t in range(BATCH_SIZE):
             count = 0
-            for i in range(input1[t].size(0)):
-                for j in range(input2[t].size(0)):
+            for i in range(MAX_SQE_LEN):
+                for j in range(MAX_SQE_LEN):
                     if count == 0:
                         s = self.getS(input1[t][i], input2[t][j])
                         count += 1
                     else:
                         s_ij = self.getS(input1[t][i], input2[t][j])
-                        s = torch.cat((s, s_ij), dim=0)
-            s = s.view(input1[t].size(0), input2[t].size(0), -1)
+                        s = torch.cat((s_ij, s), dim=0)
+            s = s.view(MAX_SQE_LEN, MAX_SQE_LEN, -1)
             print("s:", s)
-            all_hidden = [[] for i in range(input1[t].size(0))]
-            for i in range(input1[t].size(0)):
-                for j in range(input2[t].size(0)):
+            all_hidden = [[] for i in range(MAX_SQE_LEN)]
+            for i in range(MAX_SQE_LEN):
+                for j in range(MAX_SQE_LEN):
                     # print(self.init_hidden(all_hidden,i,j))
                     hidden = self.spatialRNN(s[i][j], self.init_hidden(all_hidden, i, j))
                     all_hidden[i].append(hidden)
