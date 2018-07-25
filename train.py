@@ -155,7 +155,7 @@ class Instructor:
             for arg in vars(self.opt):
                 f.write('>>> {}: {} \n'.format(arg, getattr(self.opt, arg)))
 
-            f.write('=' * 50)
+            f.write('=' * 50 + '\n')
             for i in range(len(restore_loss)):
                 f.write('> epoch {} of {} loss: {} \n'.format(
                     str(i + 1), len(restore_loss), restore_loss[i]))
