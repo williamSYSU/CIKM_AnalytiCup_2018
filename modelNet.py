@@ -6,18 +6,20 @@ from dynamicpool import DynamicPool
 
 EMBEDDING_SIZE = 300
 HIDDEN_SIZE = 200
-TARGET_SIZE = 2
+
+LEARNING_RATE = 0.01
+EPOCH_NUM = 100
+BATCH_SIZE = 16
 DROPOUT_RATE = 0.1
-LEARNING_RATE = 0.05
-BATCH_SIZE = 20
-EPOCH_NUM = 300
+DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+TARGET_SIZE = 2
 CONV_CHANNEL = 3
 CONV_TARGET = 18
 
 ENGLISH_TAG = 1  # 是否加入英语原语训练集，0：不加入；1：加入
 ENGLISH_SPANISH_RATE = 1  # 英语原语训练数据与西班牙原语训练数据的比例
 TRAINTEST_RATE = 0.7  # 划分训练集和验证集的比例
-DEVICE = torch.device('cuda:1' if torch.cuda.is_available() else 'cpu')
 
 MAX_SQE_LEN = 56  # 最长的句子词数
 END_OF_SEN = torch.ones(1, dtype=torch.float).new_full((1, EMBEDDING_SIZE), 0)
@@ -26,7 +28,7 @@ END_OF_SEN = torch.ones(1, dtype=torch.float).new_full((1, EMBEDDING_SIZE), 0)
 def initParameter(opt):
     global HIDDEN_SIZE, TARGET_SIZE, DROPOUT_RATE, LEARNING_RATE, BATCH_SIZE, \
         EPOCH_NUM, ENGLISH_TAG, ENGLISH_SPANISH_RATE, TRAINTEST_RATE, \
-        DEVICE, MAX_SQE_LEN
+        DEVICE, MAX_SQE_LEN, CONV_CHANNEL, CONV_TARGET
     HIDDEN_SIZE = opt.hidden_size
     TARGET_SIZE = opt.target_size
     DROPOUT_RATE = opt.dropout_rate
@@ -38,6 +40,8 @@ def initParameter(opt):
     TRAINTEST_RATE = opt.train_test_rate
     DEVICE = opt.device
     MAX_SQE_LEN = opt.max_sqe_len
+    CONV_CHANNEL = opt.conv_channel
+    CONV_TARGET = opt.conv_target
 
 
 # 两个lstm网络模型
