@@ -120,7 +120,7 @@ class MatchSRNN(nn.Module):
         self.U = torch.nn.Parameter(torch.randn(self.hidden_dim, 3 * self.hidden_dim))
         self.h_linear = nn.Linear(self.dimension + 3 * self.hidden_dim, self.hidden_dim)
         self.tanh = nn.Tanh()
-        self.lastlinear = nn.Linear(self.dimension, self.target)
+        self.lastlinear = nn.Linear(self.hidden_dim, self.target)
 
     def getS(self, input1, input2):
         # out = []
