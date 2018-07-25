@@ -179,7 +179,7 @@ class MatchSRNN(nn.Module):
                     else:
                         s_ij = self.getS(input1[t][i], input2[t][j])
                         s = torch.cat((s, s_ij), dim=0)
-            s = s.view(input1[t].size(0), input2[t].size(0), -1)
+            s = s.view(input1[t].size(0), input2[t].size(0), -1).to(DEVICE)
             # print(s)
             all_hidden = [[] for i in range(input1[t].size(0))]
             for i in range(input1[t].size(0)):
