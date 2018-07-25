@@ -7,6 +7,7 @@ import modelNet
 from modelNet import Bi_LSTM
 from modelNet import LSTM
 from modelNet import MatchSRNN
+from modelNet import Text2Image
 
 if __name__ == '__main__':
     # 可调超参
@@ -31,7 +32,8 @@ if __name__ == '__main__':
     model_classes = {
         'bi_lstm': Bi_LSTM,
         'lstm': LSTM,
-        'srnn': MatchSRNN
+        'srnn': MatchSRNN,
+        'text2image': Text2Image
     }
 
     # 优化器种类
