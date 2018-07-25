@@ -7,13 +7,14 @@ import modelNet
 import preprocess
 from preprocess import CIMKDatasetReader
 
-restore_data = {}
+restore_loss = []
 
 
 class Instructor:
     def __init__(self, opt):
         self.opt = opt
         # 输出模型参数
+        print('=' * 100)
         print('> training arguments:')
         for arg in vars(opt):
             print('>>> {}: {}'.format(arg, getattr(opt, arg)))
@@ -76,7 +77,6 @@ class Instructor:
 
     # 在训练集上训练
     def beginTrain(self):
-        restore_data['epoch_num'] = modelNet.EPOCH_NUM
         print('=' * 100)
         print('> Begin learning......')
 
@@ -102,7 +102,7 @@ class Instructor:
                 loss.backward()
                 self.optimizer.step()
             print('> epoch {} of {} loss: {}'.format(epoch + 1, modelNet.EPOCH_NUM, loss.item()))
-            restore_data['epoch' + str(epoch) + 'loss'] = loss.item()
+            restore_loss.append(loss.item())
 
     # 在验证集上验证
     def verifyModel(self):
@@ -151,15 +151,14 @@ class Instructor:
         # 保存模型参数以及Loss
         save_para_file_name = 'save_model/data_' + str(modelNet.ENGLISH_TAG) + '_' + str(self.final_avg_loss) + '.txt'
         with open(save_para_file_name, 'w') as f:
-            f.write("English tag:" + str(modelNet.ENGLISH_TAG) + "\n")
-            f.write("learning rate:" + str(modelNet.LEARNING_RATE) + "\n")
-            f.write("dropout rate:" + str(modelNet.DROPOUT_RATE) + "\n")
-            f.write("training rate:" + str(modelNet.TRAINTEST_RATE) + "\n")
-            f.write("epoch num:" + str(restore_data['epoch_num']) + "\n")
-            for i in range(restore_data['epoch_num']):
-                f.write("epoch " + str(i) + "  loss:" + str(restore_data['epoch' + str(i) + 'loss']) + "\n")
+            for arg in vars(self.opt):
+                f.write('>>> {}: {}'.format(arg, getattr(self.opt, arg)))
 
-            f.write("test loss:" + str(self.final_avg_loss) + "\n")
+            for i in range(len(restore_loss)):
+                f.write('> epoch {} of {} loss: {}'.format(
+                    str(i + 1), len(restore_loss), restore_loss[i]) + '\n')
+
+            f.write(">>>Final verify loss:" + str(self.final_avg_loss) + "\n")
 
         print('=' * 100)
         print('Finished!')

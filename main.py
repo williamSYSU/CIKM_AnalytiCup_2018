@@ -58,10 +58,13 @@ if __name__ == '__main__':
     instructor = Instructor(opt)
 
     # 显示训练前的结果
-    instructor.beforeTrain()
+    # instructor.beforeTrain()
 
     # 开始训练模型
-    instructor.beginTrain()
+    # instructor.beginTrain()
 
     # 显示训练后在验证集上的结果
     instructor.verifyModel()
+
+    # 运行测试集，保存模型
+    instructor.testModel()
