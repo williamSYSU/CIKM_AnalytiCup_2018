@@ -225,9 +225,11 @@ class Text2Image(nn.Module):
 
     def forward(self, sentence_1, sentence_2):
         matrix_x, size = DynamicPool.cal_similar_matrix(sentence_1, sentence_2)
-        matrix_x.view(size, -1, 56, 56)
+        matrix_x.view(size, -1, MAX_SQE_LEN, MAX_SQE_LEN)
         matrix_x = F.relu(self.conv1(matrix_x))
+
         # 暂时用不到的动态pooling
+
         # origin_size1 = len(matrix_x[0][0])
         # origin_size2 = len(matrix_x[0][0][0])
         # # 填充卷积输出
@@ -282,15 +284,15 @@ class Text2Image(nn.Module):
         need_matrix = matrix_x[:, 2, :, :].view(size, 1, CONV_TARGET, CONV_TARGET)
         mat2_3 = self.conv2_1(need_matrix)
 
-        reshape_matrix = mat2_1 + mat2_2 + mat2_3
+        reshape_matrix = F.relu(mat2_1 + mat2_2 + mat2_3)
 
         reshape_matrix = self.dropout(reshape_matrix)
         reshape_matrix = F.max_pool2d(reshape_matrix, (2, 2))
         reshape_matrix = reshape_matrix.view(-1, self.num_flat_features(reshape_matrix))
         reshape_matrix = F.tanh(self.fc1(reshape_matrix))
-        reshape_matrix = F.sigmoid(self.fc2(reshape_matrix))
+        reshape_matrix = self.fc2(reshape_matrix)
         # matrix_x = self.fc3(matrix_x)
-        reshape_matrix = reshape_matrix
+        reshape_matrix = self.softmax(reshape_matrix)
         return reshape_matrix
 
     def num_flat_features(self, x):
