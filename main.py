@@ -33,18 +33,19 @@ class PARAMETER():
         self.model = modelNet.MatchSRNN()
         self.loss_function = nn.BCELoss()
 
-        self.optimizer = optim.SGD(self.model.parameters(), lr=modelNet.LEARNING_RATE)
+        self.optimizer = optim.Adagrad(self.model.parameters(), lr=modelNet.LEARNING_RATE)
 
 
 if __name__ == '__main__':
     lstm = PARAMETER()
 
-
+    # params = list(lstm.model.named_parameters())
+    # print(params)
     # 显示训练前的结果
-    train.beforeTrain(parameter=lstm)
+    # train.beforeTrain(parameter=lstm)
 
     # 开始训练模型
     train.beginTrain(parameter=lstm)
-
-    # 显示训练后在验证集上的结果
+    #
+    # # 显示训练后在验证集上的结果
     test.verifyAfterTrainning(parameter=lstm)

@@ -7,7 +7,7 @@ HIDDEN_SIZE = 200
 TARGET_SIZE = 2
 DROPOUT_RATE = 0.1
 LEARNING_RATE = 0.01
-EPOCH_NUM = 10
+EPOCH_NUM = 1
 
 ENGLISH_TAG = 1  # 是否加入英语原语训练集，0：不加入；1：加入
 ENGLISH_SPANISH_RATE = 1  # 英语原语训练数据与西班牙原语训练数据的比例
@@ -73,29 +73,43 @@ class MatchSRNN(nn.Module):
     def __init__(self):
         super(MatchSRNN, self).__init__()
         print('Current model: Match-SpatialRNN')
-        self.dimension = 3
+        self.dimension = 1
         self.hidden_dim = 3
         self.target = 2
         self.T = torch.nn.Parameter(torch.randn(self.dimension, 300, 300))
         self.Linear = nn.Linear(600, self.dimension)
         self.relu = nn.ReLU()
+        self.s_linear = nn.Linear(self.dimension, self.dimension)
         self.qrLinear = nn.Linear(3 * self.hidden_dim + self.dimension, 3 * self.hidden_dim)
+        self.bi_qrLinear = nn.Linear(3 * self.hidden_dim + self.dimension, 3 * self.hidden_dim)
         self.qzLinear = nn.Linear(3 * self.hidden_dim + self.dimension, 4 * self.hidden_dim)
-        self.U = torch.nn.Parameter(torch.randn(self.hidden_dim, 3 * self.hidden_dim))
-        self.h_linear = nn.Linear(self.dimension, self.hidden_dim)
+        self.bi_qzLinear = nn.Linear(3 * self.hidden_dim + self.dimension, 4 * self.hidden_dim)
+        # self.U = torch.nn.Parameter(torch.randn(self.hidden_dim, 3 * self.hidden_dim))
+        # self.bi_U = torch.nn.Parameter(torch.randn(self.hidden_dim, 3 * self.hidden_dim))
+        self.h_linear = nn.Linear(self.dimension + 3 * self.hidden_dim, self.hidden_dim)
+        self.bi_h_linear = nn.Linear(self.dimension, self.hidden_dim)
         self.tanh = nn.Tanh()
-        self.lastlinear = nn.Linear(self.dimension, self.target)
-
+        self.lastlinear = nn.Linear(self.hidden_dim, 16)
+        self.lastlinear2 = nn.Linear(16, self.target)
+        self.gru1 = nn.GRUCell(self.dimension, self.hidden_dim)
+        self.gru2 = nn.GRUCell(self.dimension, self.hidden_dim)
+        self.gru3 = nn.GRUCell(self.dimension, self.hidden_dim)
+        self.hlinear = nn.Linear(3 * self.hidden_dim, self.hidden_dim)
+        self.dropout = nn.Dropout(DROPOUT_RATE)
     def getS(self, input1, input2):
-        out = []
-        for i in range(self.dimension):
-            tmp = torch.mm(input1.view(1, -1), self.T[i])
-            tmp = torch.mm(tmp, input2.view(-1, 1))
-            out.append(tmp.item())
-        add_input = torch.cat((input1.view(1, -1), input2.view(1, -1)), dim=1)
-        lin = self.Linear(add_input)
-        out = torch.add(torch.tensor(out), lin.view(-1))
-        out = self.relu(out)
+
+        # for i in range(self.dimension):
+        #     tmp = torch.mm(input1.view(1, -1), self.T[i])
+        #     tmp = torch.mm(tmp, input2.view(-1, 1))
+        #     if i==0:
+        #         out=tmp.view(-1)
+        #     else:
+        #         out=torch.cat((out,tmp.view(-1)))
+        # add_input = torch.cat((input1.view(1, -1), input2.view(1, -1)), dim=1)
+        # lin = self.Linear(add_input)
+        # out = torch.add(out, lin.view(-1))
+        # out = self.relu(out)
+        out = F.cosine_similarity(input1.view(1, -1), input2.view(1, -1))
         return out.view(1, -1)
 
     def softmaxbyrow(self, input):
@@ -111,31 +125,49 @@ class MatchSRNN(nn.Module):
                 tmp = F.softmax(input[i], dim=0).view(1, -1)
             else:
                 tmp = torch.cat((tmp, F.softmax(input[i], dim=0).view(1, -1)), dim=0)
-
         z1 = tmp[:, 0]
         z2 = tmp[:, 1]
         z3 = tmp[:, 2]
         z4 = tmp[:, 3]
-
         return z1, z2, z3, z4
 
     def spatialRNN(self, input_s, hidden):
+        # q = torch.cat((torch.cat((hidden[0], hidden[1])), torch.cat((hidden[2], input_s))))
+        # q2r=self.qrLinear(q)
+        # # q2r=self.dropout(q2r)
+        # r = F.sigmoid(q2r)
+        # # print("q:",q)
+        # z = self.qzLinear(q)
+        # z=F.sigmoid(z)
+        # # z=self.dropout(z)
+        # z1, z2, z3, z4 = self.softmaxbyrow(z)
+        # # s=self.h_linear(input_s)
+        # # s=self.dropout(s)
+        # h_=self.tanh(self.h_linear(torch.cat(((r * torch.cat((hidden[0], hidden[1], hidden[2]))),input_s))))
+        # # h_ = self.tanh(s + torch.mm(self.U,
+        # #                                         (r * torch.cat((hidden[0], hidden[1], hidden[2]))).view(-1,1)).view(-1))
+        # h = z2 * hidden[1] + z3 * hidden[0] + z4 * hidden[2] + h_ * z1
+        h1 = self.gru1(input_s.view(1, -1), hidden[0].view(1, -1))
+        h2 = self.gru2(input_s.view(1, -1), hidden[1].view(1, -1))
+        h3 = self.gru3(input_s.view(1, -1), hidden[2].view(1, -1))
+        h = torch.cat((h1, h2, h3)).view(-1)
+        h = self.hlinear(h)
+        return h
+
+    def bi_spatialRNN(self, input_s, hidden):
         q = torch.cat((torch.cat((hidden[0], hidden[1])), torch.cat((hidden[2], input_s))))
-        r = F.sigmoid(self.qrLinear(q))
+        q2r = self.bi_qrLinear(q)
+        # q2r=self.dropout(q2r)
+        r = F.sigmoid(q2r)
         # print("q:",q)
-        z = self.qzLinear(q)
+        z = self.bi_qzLinear(q)
+        # z=self.dropout(z)
         z1, z2, z3, z4 = self.softmaxbyrow(z)
-        # print("r:",r)
-        # print("qwe:",torch.cat((hidden[0], hidden[1], hidden[2])))
-        # print("sd:",torch.mm(self.U,(r*torch.cat((hidden[0],hidden[1],hidden[2]))).view(-1,1)).view(-1))
-        # print("fdsf:",self.h_linear(input_s))
-        h_ = self.tanh(self.h_linear(input_s) + torch.mm(self.U,
-                                                         (r * torch.cat((hidden[0], hidden[1], hidden[2]))).view(-1,
-                                                                                                                 1)).view(
-            -1))
+        s = self.bi_h_linear(input_s)
+        # s=self.dropout(s)
+        h_ = self.tanh(s + torch.mm(self.bi_U,
+                                    (r * torch.cat((hidden[0], hidden[1], hidden[2]))).view(-1, 1)).view(-1))
         h = z2 * hidden[1] + z3 * hidden[0] + z4 * hidden[2] + h_ * z1
-        # print(z2*hidden[1],z3*hidden[0],z4*hidden[2],h_*z1)
-        # print("h",h)
         return h
 
     def init_hidden(self, all_hidden, i, j):
@@ -159,14 +191,25 @@ class MatchSRNN(nn.Module):
                     s_ij = self.getS(input1[i], input2[j])
                     s = torch.cat((s, s_ij), dim=0)
         s = s.view(input1.size(0), input2.size(0), -1)
+        s = F.sigmoid(self.s_linear(s))
         all_hidden = [[] for i in range(input1.size(0))]
         for i in range(input1.size(0)):
             for j in range(input2.size(0)):
                 # print(self.init_hidden(all_hidden,i,j))
+                # if i==0 and j==0:
+                #     bi_s=s[i][j]
+                # else:
+                #     bi_s=torch.cat((s[i][j],bi_s))
                 hidden = self.spatialRNN(s[i][j], self.init_hidden(all_hidden, i, j))
-                all_hidden[i].append(hidden)
+                all_hidden[i].append(hidden.view(-1))
         # print(all_hidden)
-
+        # bi_s=bi_s.view(input1.size(0), input2.size(0), -1)
+        # bi_all_hidden = [[] for i in range(input1.size(0))]
+        # for i in range(input1.size(0)):
+        #     for j in range(input2.size(0)):
+        #         hidden = self.bi_spatialRNN(bi_s[i][j], self.init_hidden(bi_all_hidden, i, j))
+        #         bi_all_hidden[i].append(hidden)
         out = self.lastlinear(all_hidden[input1.size(0) - 1][input2.size(0) - 1])
+        out = self.lastlinear2(out)
         out = F.softmax(out, dim=0)
         return out

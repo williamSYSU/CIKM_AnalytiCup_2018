@@ -67,7 +67,7 @@ def load_training_and_verify_pairs(pairs):
 
     # 按比例取训练集和验证集
     training_pairs = pairs_true[0:int(len(pairs_true) * modelNet.TRAINTEST_RATE)] + \
-                     pairs_false[0:int(len(pairs_false) * modelNet.TRAINTEST_RATE)]
+                     pairs_false[0:int(len(pairs_false) * 2)]
     verify_pairs = pairs_true[int(len(pairs_true) * modelNet.TRAINTEST_RATE):] + \
                    pairs_false[int(len(pairs_false) * modelNet.TRAINTEST_RATE):]
 

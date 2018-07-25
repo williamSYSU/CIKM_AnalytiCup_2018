@@ -16,6 +16,7 @@ def beforeTrain(parameter):
             verify_pair = preprocess.tensorsFromPair_verify(pair, parameter.word_to_embedding)
             tag_scores = parameter.model(verify_pair[0], verify_pair[1])
             label = verify_pair[2]
+            print(tag_scores[0], label)
             if label == '1':
                 label = torch.tensor([1], dtype=torch.float)
             else:
@@ -37,12 +38,14 @@ def beginTrain(parameter):
             training_pair = preprocess.tensorsFromPair(pair, parameter.word_to_embedding)
             tag_scores = parameter.model(training_pair[0], training_pair[1])
             label = training_pair[2]
-
+            # print(tag_scores[0],label)
             if label == '1':
                 label = torch.tensor([1], dtype=torch.float)
             else:
                 label = torch.tensor([0], dtype=torch.float)
             loss = parameter.loss_function(tag_scores[0].view(-1), label)
+            # print("during "+str(epoch)+"epoch loss : ",loss.item())
+            # print(tag_scores[0],label,loss)
             loss.backward()
             parameter.optimizer.step()
         data['epoch' + str(epoch) + 'loss'] = loss.item()
