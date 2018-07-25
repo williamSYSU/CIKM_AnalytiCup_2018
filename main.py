@@ -60,7 +60,7 @@ if __name__ == '__main__':
     instructor = Instructor(opt)
 
     # 显示训练前的结果
-    instructor.beforeTrain()
+    # instructor.beforeTrain()
 
     # 开始训练模型
     instructor.beginTrain()
