@@ -160,13 +160,14 @@ class MatchSRNN(nn.Module):
         return z1, z2, z3, z4
 
     def spatialRNN(self, input_s, hidden):
-        q = torch.cat((torch.cat((hidden[0], hidden[1])), torch.cat((hidden[2], input_s))))
-        r = F.sigmoid(self.qrLinear(q))
-        z = self.qzLinear(q)
-        z = F.sigmoid(z)
-        z1, z2, z3, z4 = self.softmaxbyrow(z)
-        h_ = self.tanh(self.h_linear(torch.cat(((r * torch.cat((hidden[0], hidden[1], hidden[2]))), input_s))))
-        h = z2 * hidden[1] + z3 * hidden[0] + z4 * hidden[2] + h_ * z1
+        # q = torch.cat((torch.cat((hidden[0], hidden[1])), torch.cat((hidden[2], input_s))))
+        # r = F.sigmoid(self.qrLinear(q))
+        # z = self.qzLinear(q)
+        # z = F.sigmoid(z)
+        # z1, z2, z3, z4 = self.softmaxbyrow(z)
+        # h_ = self.tanh(self.h_linear(torch.cat(((r * torch.cat((hidden[0], hidden[1], hidden[2]))), input_s))))
+        # h = z2 * hidden[1] + z3 * hidden[0] + z4 * hidden[2] + h_ * z1
+        h = torch.randn(1, self.hidden_dim)
         return h
 
     def init_hidden(self, all_hidden, i, j):
