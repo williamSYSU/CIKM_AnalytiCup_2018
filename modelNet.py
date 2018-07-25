@@ -216,13 +216,12 @@ class MatchSRNN(nn.Module):
                     hidden = self.spatialRNN(s[i][j],
                                              [all_hidden[i - 1][j], all_hidden[i][j - 1], all_hidden[i - 1][j - 1]])
                     all_hidden[i][j] = hidden
-            batch_all_hidden.append(all_hidden)
-        for t in range(BATCH_SIZE):
+            print("all_hidden:", all_hidden)
             if t == 0:
-                out = batch_all_hidden[t][-1][-1].unsqueeze(0)
+                out = hidden.unsqueeze(0)
             else:
-                out = torch.cat((out, batch_all_hidden[t][-1][-1].unsqueeze(0)), dim=0)
-        # print("out:", out)
+                out = torch.cat((out, hidden.unsqueeze(0)), dim=0)
+        print("out:", out)
         # print("ba:",batch_all_hidden[:][input1[t].size(0) - 1][input2[t].size(0) - 1])
         out = self.lastlinear(out)
         out = F.softmax(out, dim=1)
