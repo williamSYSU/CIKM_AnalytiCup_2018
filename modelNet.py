@@ -217,6 +217,7 @@ class MatchSRNN(nn.Module):
         # print(out)
         # print("ba:",batch_all_hidden[:][input1[t].size(0) - 1][input2[t].size(0) - 1])
         out = self.lastlinear(out)
+        print(out)
         out = F.softmax(out, dim=0)
         return out
 
