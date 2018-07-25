@@ -96,7 +96,7 @@ class Instructor:
 
                 outputs = self.model(input1, input2)[:, 1].view(-1)
                 if idx is 5:
-                    print('output: {}, label: {}'.format(outputs, label))
+                    print('output: {}\nlabel: {}'.format(outputs, label))
 
                 loss = self.criterion(outputs, label)
                 loss.backward()
@@ -154,6 +154,7 @@ class Instructor:
             for arg in vars(self.opt):
                 f.write('>>> {}: {} \n'.format(arg, getattr(self.opt, arg)))
 
+            f.write('=' * 50)
             for i in range(len(restore_loss)):
                 f.write('> epoch {} of {} loss: {} \n'.format(
                     str(i + 1), len(restore_loss), restore_loss[i]))
