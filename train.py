@@ -36,7 +36,7 @@ class Instructor:
             num_workers=4
         )
 
-        self.model = modelNet.Bi_LSTM().to(modelNet.DEVICE)
+        self.model = modelNet.MatchSRNN().to(modelNet.DEVICE)
         self.criterion = nn.BCELoss()
         self.optimizer = optim.SGD(self.model.parameters(), lr=modelNet.LEARNING_RATE)
 
