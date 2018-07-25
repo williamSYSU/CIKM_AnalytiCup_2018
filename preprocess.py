@@ -5,7 +5,6 @@ import re
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset
-from torch.utils.data import DataLoader
 
 import load_data
 import modelNet

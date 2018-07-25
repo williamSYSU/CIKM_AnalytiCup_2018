@@ -26,7 +26,7 @@ class Instructor:
         self.train_data_loader = DataLoader(
             dataset=cimk_dataset.train_data,
             batch_size=opt.batch_size,
-            shuffle=False,
+            shuffle=True,
             drop_last=True,
             num_workers=4
         )
