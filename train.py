@@ -125,7 +125,6 @@ class Instructor:
         print('=' * 100)
         print('Begin test and save model......')
         for idx, sample_batch in enumerate(self.test_data_loader):
-
             input1 = sample_batch['input1'].to(modelNet.DEVICE)
             input2 = sample_batch['input2'].to(modelNet.DEVICE)
 
