@@ -113,7 +113,7 @@ class MatchSRNN(nn.Module):
     def __init__(self):
         super(MatchSRNN, self).__init__()
         print('Current model: Match-SpatialRNN')
-        self.dimension = 1
+        self.dimension = 8
         self.hidden_dim = 5
         self.target = 2
         self.T = torch.nn.Parameter(torch.randn(self.dimension, 300, 300))
@@ -126,20 +126,23 @@ class MatchSRNN(nn.Module):
         self.h_linear = nn.Linear(self.dimension + 3 * self.hidden_dim, self.hidden_dim)
         self.tanh = nn.Tanh()
         self.lastlinear = nn.Linear(self.hidden_dim, self.target)
-
+        self.conv1 = nn.Conv2d(self.dimension, 16, 10, 2)
+        self.conv2 = nn.Conv2d(16, 24, 5, 1)
+        self.c1_linear = nn.Linear(24 * 4 * 4, 10)
+        self.c2_linear = nn.Linear(10, 2)
     def getS(self, input1, input2):
         # out = []
-        # for i in range(self.dimension):
-        #     tmp = torch.mm(input1.view(1, -1), self.T[i])
-        #     tmp = torch.mm(tmp, input2.view(-1, 1))
-        #     if i == 0:
-        #         out = tmp.view(-1)
-        #     else:
-        #         out = torch.cat((out, tmp.view(-1)))
-        # add_input = torch.cat((input1.view(1, -1), input2.view(1, -1)), dim=1)
-        # lin = self.Linear(add_input)
-        # out = torch.add(out, lin.view(-1))
-        out = F.cosine_similarity(input1.view(1, -1), input2.view(1, -1))
+        for i in range(self.dimension):
+            tmp = torch.mm(input1.view(1, -1), self.T[i])
+            tmp = torch.mm(tmp, input2.view(-1, 1))
+            if i == 0:
+                out = tmp.view(-1)
+            else:
+                out = torch.cat((out, tmp.view(-1)))
+        add_input = torch.cat((input1.view(1, -1), input2.view(1, -1)), dim=1)
+        lin = self.Linear(add_input)
+        out = torch.add(out, lin.view(-1))
+        # out = F.cosine_similarity(input1.view(1, -1), input2.view(1, -1))
         out = self.relu(out)
         return out.view(1, -1)
 
@@ -182,11 +185,16 @@ class MatchSRNN(nn.Module):
         else:
             return all_hidden[i - 1][j], all_hidden[i][j - 1], all_hidden[i - 1][j - 1]
 
+    def num_flat_features(self, x):
+        size = x.size()[1:]
+        num_features = 1
+        for s in size:
+            num_features *= s
+        return num_features
     def forward(self, input1, input2):
         time = datetime.datetime.now()
+        count = 0
         for t in range(input1.size(0)):
-            count = 0
-
             for i in range(MAX_SQE_LEN):
                 for j in range(MAX_SQE_LEN):
                     if count == 0:
@@ -195,31 +203,35 @@ class MatchSRNN(nn.Module):
                     else:
                         s_ij = self.getS(input1[t][i], input2[t][j])
                         s = torch.cat((s_ij, s), dim=0)
-            s = s.view(MAX_SQE_LEN, MAX_SQE_LEN, -1)
+        s = s.view(input1.size(0), -1, MAX_SQE_LEN, MAX_SQE_LEN)
+        s = F.max_pool2d(F.relu(self.conv1(s)), (2, 2))
+        s = F.max_pool2d(F.relu(self.conv2(s)), (2, 2))
+        s = F.relu(self.c1_linear(s.view(-1, self.num_flat_features(s))))
+        s = F.relu(self.c2_linear(s))
             # print("s:", s)
-            all_hidden = [([[] for j in range(MAX_SQE_LEN)]) for i in range(MAX_SQE_LEN)]
-            new_tensor = torch.zeros(self.hidden_dim).to(DEVICE)
-            for i in range(MAX_SQE_LEN):
-                all_hidden[i][0] = new_tensor
-                all_hidden[0][i] = new_tensor
-            for i in range(1, MAX_SQE_LEN):
-                for j in range(1, MAX_SQE_LEN):
-                    # print(self.init_hidden(all_hidden,i,j))
-                    hidden = self.spatialRNN(s[i][j],
-                                             [all_hidden[i - 1][j], all_hidden[i][j - 1], all_hidden[i - 1][j - 1]])
-                    all_hidden[i][j] = hidden
-                    # if i == MAX_SQE_LEN - 1 and j == MAX_SQE_LEN - 1:
-                    #     print("s and hidden :", s[i][j], all_hidden[i - 1][j], all_hidden[i][j - 1],
-                    #           all_hidden[i - 1][j - 1])
-                    #     print("last hidden:", hidden)
-            # print("all_hidden:", all_hidden)
-            if t == 0:
-                out = hidden.unsqueeze(0)
-            else:
-                out = torch.cat((out, hidden.unsqueeze(0)), dim=0)
+        # all_hidden = [([[] for j in range(MAX_SQE_LEN)]) for i in range(MAX_SQE_LEN)]
+        # new_tensor = torch.zeros(self.hidden_dim).to(DEVICE)
+        # for i in range(MAX_SQE_LEN):
+        #     all_hidden[i][0] = new_tensor
+        #     all_hidden[0][i] = new_tensor
+        # for i in range(1, MAX_SQE_LEN):
+        #     for j in range(1, MAX_SQE_LEN):
+        #         # print(self.init_hidden(all_hidden,i,j))
+        #         hidden = self.spatialRNN(s[i][j],
+        #                                  [all_hidden[i - 1][j], all_hidden[i][j - 1], all_hidden[i - 1][j - 1]])
+        #         all_hidden[i][j] = hidden
+        #         # if i == MAX_SQE_LEN - 1 and j == MAX_SQE_LEN - 1:
+        #         #     print("s and hidden :", s[i][j], all_hidden[i - 1][j], all_hidden[i][j - 1],
+        #         #           all_hidden[i - 1][j - 1])
+        #         #     print("last hidden:", hidden)
+        # # print("all_hidden:", all_hidden)
+        # if t == 0:
+        #     out = hidden.unsqueeze(0)
+        # else:
+        #     out = torch.cat((out, hidden.unsqueeze(0)), dim=0)
         # print("ba:",batch_all_hidden[:][input1[t].size(0) - 1][input2[t].size(0) - 1])
-        out = self.lastlinear(out)
-        out = F.softmax(out, dim=1)
+        # out = self.lastlinear(out)
+        out = F.softmax(s, dim=1)
         time2 = datetime.datetime.now()
         print("run time:", time2 - time, time2, time)
         # print("out:", out)
