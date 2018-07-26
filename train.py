@@ -26,7 +26,7 @@ class Instructor:
         self.train_data_loader = DataLoader(
             dataset=cimk_dataset.train_data,
             batch_size=opt.batch_size,
-            shuffle=False,
+            shuffle=True,
             drop_last=True,
             num_workers=4
         )
@@ -97,8 +97,8 @@ class Instructor:
                 outputs = self.model(input1, input2)[:, 1].view(-1)
                 # if idx is 5:
                 #     print('output: {}, label: {}'.format(outputs, label))
-                print('output: {}, label: {}'.format(outputs, label))
                 loss = self.criterion(outputs, label)
+                print('output: {}, label: {}'.format(outputs, label), loss)
                 loss.backward()
                 self.optimizer.step()
             print('> epoch {} of {} loss: {}'.format(epoch + 1, modelNet.EPOCH_NUM, loss.item()))
