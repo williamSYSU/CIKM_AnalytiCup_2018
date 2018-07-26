@@ -143,7 +143,7 @@ class MatchSRNN(nn.Module):
         lin = self.Linear(add_input)
         out = torch.add(out, lin.view(-1))
         # out = F.cosine_similarity(input1.view(1, -1), input2.view(1, -1))
-        out = self.relu(out)
+        # out = self.relu(out)
         return out.view(1, -1)
 
     def softmaxbyrow(self, input):
