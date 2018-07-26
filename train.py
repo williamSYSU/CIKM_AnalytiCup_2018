@@ -97,7 +97,7 @@ class Instructor:
                 outputs = self.model(input1, input2)[:, 1].view(-1)
                 # if idx is 5:
                 #     print('output: {}, label: {}'.format(outputs, label))
-                print('output: {}, label: {}'.format(outputs, label))
+                # print('output: {}, label: {}'.format(outputs, label))
                 loss = self.criterion(outputs, label)
                 loss.backward()
                 self.optimizer.step()

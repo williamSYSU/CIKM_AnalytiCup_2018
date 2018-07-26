@@ -192,7 +192,6 @@ class MatchSRNN(nn.Module):
             num_features *= s
         return num_features
     def forward(self, input1, input2):
-        time = datetime.datetime.now()
         count = 0
         for t in range(input1.size(0)):
             for i in range(MAX_SQE_LEN):
@@ -208,7 +207,7 @@ class MatchSRNN(nn.Module):
         s = F.max_pool2d(F.relu(self.conv2(s)), (2, 2))
         s = F.relu(self.c1_linear(s.view(-1, self.num_flat_features(s))))
         s = F.relu(self.c2_linear(s))
-            # print("s:", s)
+        print("s:", s)
         # all_hidden = [([[] for j in range(MAX_SQE_LEN)]) for i in range(MAX_SQE_LEN)]
         # new_tensor = torch.zeros(self.hidden_dim).to(DEVICE)
         # for i in range(MAX_SQE_LEN):
@@ -232,9 +231,7 @@ class MatchSRNN(nn.Module):
         # print("ba:",batch_all_hidden[:][input1[t].size(0) - 1][input2[t].size(0) - 1])
         # out = self.lastlinear(out)
         out = F.softmax(s, dim=1)
-        time2 = datetime.datetime.now()
-        print("run time:", time2 - time, time2, time)
-        # print("out:", out)
+        print("out:", out)
         return out
 
 
