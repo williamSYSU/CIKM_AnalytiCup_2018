@@ -25,14 +25,14 @@ class Instructor:
         self.train_data_loader = DataLoader(
             dataset=cimk_dataset.train_data,
             batch_size=opt.batch_size,
-            shuffle=opt.shuffle,
+            shuffle=True if opt.shuffle is 1 else False,
             drop_last=True,
             num_workers=4
         )
         self.verify_data_loader = DataLoader(
             dataset=cimk_dataset.verify_data,
             batch_size=opt.batch_size,
-            shuffle=opt.shuffle,
+            shuffle=True if opt.shuffle is 1 else False,
             drop_last=True,
             num_workers=4
         )
