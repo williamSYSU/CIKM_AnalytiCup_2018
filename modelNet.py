@@ -113,7 +113,7 @@ class MatchSRNN(nn.Module):
     def __init__(self):
         super(MatchSRNN, self).__init__()
         print('Current model: Match-SpatialRNN')
-        self.dimension = 1
+        self.dimension = 4
         self.hidden_dim = 5
         self.target = 2
         self.T = torch.nn.Parameter(torch.randn(self.dimension, 300, 300))
@@ -133,18 +133,18 @@ class MatchSRNN(nn.Module):
 
     def getS(self, input1, input2):
         # out = []
-        # for i in range(self.dimension):
-        #     tmp = torch.mm(input1.view(1, -1), self.T[i])
-        #     tmp = torch.mm(tmp, input2.view(-1, 1))
-        #     if i == 0:
-        #         out = tmp.view(-1)
-        #     else:
-        #         out = torch.cat((out, tmp.view(-1)))
-        # add_input = torch.cat((input1.view(1, -1), input2.view(1, -1)), dim=1)
-        # lin = self.Linear(add_input)
-        # out = torch.add(out, lin.view(-1))
-        out = F.cosine_similarity(input1.view(1, -1), input2.view(1, -1))
-        # out = self.relu(out)
+        for i in range(self.dimension):
+            tmp = torch.mm(input1.view(1, -1), self.T[i])
+            tmp = torch.mm(tmp, input2.view(-1, 1))
+            if i == 0:
+                out = tmp.view(-1)
+            else:
+                out = torch.cat((out, tmp.view(-1)))
+        add_input = torch.cat((input1.view(1, -1), input2.view(1, -1)), dim=1)
+        lin = self.Linear(add_input)
+        out = torch.add(out, lin.view(-1))
+        # out = F.cosine_similarity(input1.view(1, -1), input2.view(1, -1))
+        out = self.relu(out)
         return out.view(1, -1)
 
     # def softmaxbyrow(self, input):
