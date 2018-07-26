@@ -118,18 +118,19 @@ class MatchSRNN(nn.Module):
         self.target = 2
         self.T = torch.nn.Parameter(torch.randn(self.dimension, 300, 300))
         self.Linear = nn.Linear(600, self.dimension)
-        self.relu = nn.ReLU()
-        self.qrLinear = nn.Linear(3 * self.hidden_dim + self.dimension, 3 * self.hidden_dim)
-        self.qzLinear = nn.Linear(3 * self.hidden_dim + self.dimension, 4 * self.hidden_dim)
-        self.qhLinear = nn.Linear(3 * self.hidden_dim + self.dimension, self.hidden_dim)
-        # self.U = torch.nn.Parameter(torch.randn(self.hidden_dim, 3 * self.hidden_dim))
-        self.h_linear = nn.Linear(self.dimension + 3 * self.hidden_dim, self.hidden_dim)
-        self.tanh = nn.Tanh()
-        self.lastlinear = nn.Linear(self.hidden_dim, self.target)
+        # self.relu = nn.ReLU()
+        # self.qrLinear = nn.Linear(3 * self.hidden_dim + self.dimension, 3 * self.hidden_dim)
+        # self.qzLinear = nn.Linear(3 * self.hidden_dim + self.dimension, 4 * self.hidden_dim)
+        # self.qhLinear = nn.Linear(3 * self.hidden_dim + self.dimension, self.hidden_dim)
+        # # self.U = torch.nn.Parameter(torch.randn(self.hidden_dim, 3 * self.hidden_dim))
+        # self.h_linear = nn.Linear(self.dimension + 3 * self.hidden_dim, self.hidden_dim)
+        # self.tanh = nn.Tanh()
+        # self.lastlinear = nn.Linear(self.hidden_dim, self.target)
         self.conv1 = nn.Conv2d(self.dimension, 16, 10, 2)
         self.conv2 = nn.Conv2d(16, 24, 5, 1)
         self.c1_linear = nn.Linear(24 * 4 * 4, 10)
         self.c2_linear = nn.Linear(10, 2)
+
     def getS(self, input1, input2):
         # out = []
         for i in range(self.dimension):
@@ -146,44 +147,44 @@ class MatchSRNN(nn.Module):
         # out = self.relu(out)
         return out.view(1, -1)
 
-    def softmaxbyrow(self, input):
-        input = input.view(4, -1)
-        input = torch.transpose(input, 0, 1)
-        a = []
-        for i in range(self.hidden_dim):
-            if i == 0:
-                tmp = F.softmax(input[i], dim=0).view(1, -1)
-            else:
-                tmp = torch.cat((tmp, F.softmax(input[i], dim=0).view(1, -1)), dim=0)
+    # def softmaxbyrow(self, input):
+    #     input = input.view(4, -1)
+    #     input = torch.transpose(input, 0, 1)
+    #     a = []
+    #     for i in range(self.hidden_dim):
+    #         if i == 0:
+    #             tmp = F.softmax(input[i], dim=0).view(1, -1)
+    #         else:
+    #             tmp = torch.cat((tmp, F.softmax(input[i], dim=0).view(1, -1)), dim=0)
+    #
+    #     z1 = tmp[:, 0]
+    #     z2 = tmp[:, 1]
+    #     z3 = tmp[:, 2]
+    #     z4 = tmp[:, 3]
+    #
+    #     return z1, z2, z3, z4
 
-        z1 = tmp[:, 0]
-        z2 = tmp[:, 1]
-        z3 = tmp[:, 2]
-        z4 = tmp[:, 3]
+    # def spatialRNN(self, input_s, hidden):
+    #     q = torch.cat((torch.cat((hidden[0], hidden[1])), torch.cat((hidden[2], input_s))))
+    #     r = F.sigmoid(self.qrLinear(q))
+    #     z = self.qzLinear(q)
+    #     z = F.sigmoid(z)
+    #     z1, z2, z3, z4 = self.softmaxbyrow(z)
+    #     h_ = self.tanh(self.h_linear(torch.cat(((r * torch.cat((hidden[0], hidden[1], hidden[2]))), input_s))))
+    #     h = z2 * hidden[1] + z3 * hidden[0] + z4 * hidden[2] + h_ * z1
+    #
+    #     return h
 
-        return z1, z2, z3, z4
-
-    def spatialRNN(self, input_s, hidden):
-        q = torch.cat((torch.cat((hidden[0], hidden[1])), torch.cat((hidden[2], input_s))))
-        r = F.sigmoid(self.qrLinear(q))
-        z = self.qzLinear(q)
-        z = F.sigmoid(z)
-        z1, z2, z3, z4 = self.softmaxbyrow(z)
-        h_ = self.tanh(self.h_linear(torch.cat(((r * torch.cat((hidden[0], hidden[1], hidden[2]))), input_s))))
-        h = z2 * hidden[1] + z3 * hidden[0] + z4 * hidden[2] + h_ * z1
-
-        return h
-
-    def init_hidden(self, all_hidden, i, j):
-        new_tensor = torch.zeros(self.hidden_dim).to(DEVICE)
-        if i == 0 and j == 0:
-            return [new_tensor, new_tensor, new_tensor]
-        elif i == 0:
-            return [new_tensor, all_hidden[i][j - 1], new_tensor]
-        elif j == 0:
-            return [all_hidden[i - 1][j], new_tensor, new_tensor]
-        else:
-            return all_hidden[i - 1][j], all_hidden[i][j - 1], all_hidden[i - 1][j - 1]
+    # def init_hidden(self, all_hidden, i, j):
+    #     new_tensor = torch.zeros(self.hidden_dim).to(DEVICE)
+    #     if i == 0 and j == 0:
+    #         return [new_tensor, new_tensor, new_tensor]
+    #     elif i == 0:
+    #         return [new_tensor, all_hidden[i][j - 1], new_tensor]
+    #     elif j == 0:
+    #         return [all_hidden[i - 1][j], new_tensor, new_tensor]
+    #     else:
+    #         return all_hidden[i - 1][j], all_hidden[i][j - 1], all_hidden[i - 1][j - 1]
 
     def num_flat_features(self, x):
         size = x.size()[1:]
@@ -191,6 +192,7 @@ class MatchSRNN(nn.Module):
         for s in size:
             num_features *= s
         return num_features
+
     def forward(self, input1, input2):
         count = 0
         for t in range(input1.size(0)):
@@ -203,11 +205,14 @@ class MatchSRNN(nn.Module):
                         s_ij = self.getS(input1[t][i], input2[t][j])
                         s = torch.cat((s_ij, s), dim=0)
         s = s.view(input1.size(0), -1, MAX_SQE_LEN, MAX_SQE_LEN)
-        s = F.max_pool2d(F.tanh(self.conv1(s)), (2, 2))
-        s = F.max_pool2d(F.tanh(self.conv2(s)), (2, 2))
+        s = F.max_pool2d(F.relu(self.conv1(s)), (2, 2))
+        s = F.max_pool2d(F.relu(self.conv2(s)), (2, 2))
         s = F.tanh(self.c1_linear(s.view(-1, self.num_flat_features(s))))
         s = F.tanh(self.c2_linear(s))
-        print("s:", s)
+        # print("s:", s)
+        out = F.softmax(s, dim=1)
+        # print("out:", out)
+        return out
         # all_hidden = [([[] for j in range(MAX_SQE_LEN)]) for i in range(MAX_SQE_LEN)]
         # new_tensor = torch.zeros(self.hidden_dim).to(DEVICE)
         # for i in range(MAX_SQE_LEN):
@@ -230,9 +235,6 @@ class MatchSRNN(nn.Module):
         #     out = torch.cat((out, hidden.unsqueeze(0)), dim=0)
         # print("ba:",batch_all_hidden[:][input1[t].size(0) - 1][input2[t].size(0) - 1])
         # out = self.lastlinear(out)
-        out = F.softmax(s, dim=1)
-        print("out:", out)
-        return out
 
 
 class Text2Image(nn.Module):
