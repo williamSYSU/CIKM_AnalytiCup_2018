@@ -144,7 +144,7 @@ class MatchSRNN(nn.Module):
         lin = self.Linear(add_input)
         out = torch.add(out, lin.view(-1))
         # out = F.cosine_similarity(input1.view(1, -1), input2.view(1, -1))
-        out = nn.relu(out)
+        out = F.relu(out)
         return out.view(1, -1)
 
     # def softmaxbyrow(self, input):
@@ -205,8 +205,8 @@ class MatchSRNN(nn.Module):
                         s_ij = self.getS(input1[t][i], input2[t][j])
                         s = torch.cat((s_ij, s), dim=0)
         s = s.view(input1.size(0), -1, MAX_SQE_LEN, MAX_SQE_LEN)
-        s = F.max_pool2d(nn.relu(self.conv1(s)), (2, 2))
-        s = F.max_pool2d(nn.relu(self.conv2(s)), (2, 2))
+        s = F.max_pool2d(F.relu(self.conv1(s)), (2, 2))
+        s = F.max_pool2d(F.relu(self.conv2(s)), (2, 2))
         s = F.tanh(self.c1_linear(s.view(-1, self.num_flat_features(s))))
         s = F.tanh(self.c2_linear(s))
         # print("s:", s)
