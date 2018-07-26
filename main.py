@@ -30,6 +30,8 @@ if __name__ == '__main__':
     parser.add_argument('--conv_channel', default=3, type=int, help='> default:3')
     parser.add_argument('--conv_target', default=18, type=int, help='> default:18')
     parser.add_argument('--log_dir', default='log', type=str, help='> Loss curve log name (default: \'log\')')
+    parser.add_argument('--shuffle', default=True, type=bool,
+                        help='> Shuffle train and verify data (default:True)')
     opt = parser.parse_args()
 
     # 模型种类
