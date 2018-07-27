@@ -93,10 +93,9 @@ class Instructor:
                 input2 = sample_batch['input2'].to(modelNet.DEVICE)
                 label = sample_batch['label'].to(modelNet.DEVICE)
 
-                outputs = self.model(input1, input2)
+                outputs = self.model(input1, input2)[:, 1].view(-1)
                 if idx is 5:
                     print('output: {}\nlabel: {}'.format(outputs, label))
-                outputs = outputs[:, 1].view(-1)
 
                 loss = self.criterion(outputs, label)
                 loss.backward()
