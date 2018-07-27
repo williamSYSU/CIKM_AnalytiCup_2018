@@ -110,7 +110,7 @@ class Instructor:
                 self.optimizer.step()
 
                 # 查看模型在验证集上的验证效果
-                if self.opt.if_log_verify is 1 and global_step % self.opt.log_step is 0:
+                if self.opt.if_step_verify is 1 and global_step % self.opt.log_step is 0:
                     verify_loss = self.stepVerify()
                     self.writer.add_scalar('Verify Loss', verify_loss, global_step)
                     min_verify_loss = min(min_verify_loss, verify_loss)
