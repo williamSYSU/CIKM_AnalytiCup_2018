@@ -82,8 +82,8 @@ class Instructor:
         print('> Begin learning......')
 
         global_step = 0
-        min_train_loss = 0
-        min_verify_loss = 0
+        min_train_loss = 999
+        min_verify_loss = 999
         for epoch in range(modelNet.EPOCH_NUM):
             print('>' * 100)
             loss = torch.tensor([0], dtype=torch.float)
@@ -115,7 +115,7 @@ class Instructor:
                     self.writer.add_scalar('Verify Loss', verify_loss, global_step)
                     min_verify_loss = min(min_verify_loss, verify_loss)
 
-            print('>> epoch {} of {}, -loss: {} -min train loss: {} - min verify loss: {}'.format(
+            print('>> epoch {} of {}, -loss: {} -min train loss: {} -min verify loss: {}'.format(
                 epoch + 1, modelNet.EPOCH_NUM, loss.item(), min_train_loss, min_verify_loss))
 
             min_train_loss = min(min_train_loss, loss.item())  # 计算训练过程的最小Loss
