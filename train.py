@@ -12,6 +12,7 @@ restore_loss = []
 class Instructor:
     def __init__(self, opt):
         self.opt = opt
+        self.final_avg_loss = 0.
         # 输出模型参数
         print('=' * 100)
         print('> training arguments:')
@@ -80,12 +81,16 @@ class Instructor:
         print('=' * 100)
         print('> Begin learning......')
 
+        global_step = 0
+        min_train_loss = 0
+        min_verify_loss = 0
         for epoch in range(modelNet.EPOCH_NUM):
             print('>' * 100)
             loss = torch.tensor([0], dtype=torch.float)
             for idx, sample_batch in enumerate(self.train_data_loader):
+                global_step += 1
+
                 self.model.train()  # 切换模型至训练模式
-                # self.optimizer.zero_grad()
                 self.model.zero_grad()  # 清空积累的梯度
 
                 # 取训练数据和标签
@@ -93,14 +98,27 @@ class Instructor:
                 input2 = sample_batch['input2'].to(modelNet.DEVICE)
                 label = sample_batch['label'].to(modelNet.DEVICE)
 
+                # 计算模型的输出
                 outputs = self.model(input1, input2)[:, 1].view(-1)
+                # 指定一个batch查看其在每轮的优化效果如何
                 if idx is 5:
                     print('output: {}\nlabel: {}'.format(outputs, label))
 
+                # 计算loss，并更新参数
                 loss = self.criterion(outputs, label)
                 loss.backward()
                 self.optimizer.step()
-            print('> epoch {} of {} loss: {}'.format(epoch + 1, modelNet.EPOCH_NUM, loss.item()))
+
+                # 查看模型在验证集上的验证效果
+                if global_step % self.opt.log_step == 0:
+                    self.verifyModel()
+                    self.writer.add_scalar('Verify Loss', self.final_avg_loss, global_step)
+                    min_verify_loss = min(min_verify_loss, self.final_avg_loss)
+
+            print('> epoch {} of {}\n>> loss: {}\n>> min train loss: {}\n>> min verify loss: {}'.format(
+                epoch + 1, modelNet.EPOCH_NUM, loss.item(), min_train_loss, min_verify_loss))
+            # 计算训练过程的最小Loss
+            min_train_loss = min(min_train_loss, loss.item())
             restore_loss.append(loss.item())
             self.writer.add_scalar('loss', loss, epoch)
         self.writer.close()

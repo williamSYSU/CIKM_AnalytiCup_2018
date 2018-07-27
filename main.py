@@ -30,6 +30,7 @@ if __name__ == '__main__':
     parser.add_argument('--conv_channel', default=3, type=int, help='> default: 3')
     parser.add_argument('--conv_target', default=18, type=int, help='> default: 18')
     parser.add_argument('--log_dir', default='log', type=str, help='> Loss curve log name (default: \'log\')')
+    parser.add_argument('--log_step', default=5, type=int, help='> Log loss on verify data (default: 5)')
     parser.add_argument('--shuffle', default=1, type=int,
                         help='> Shuffle train and verify data (default: 1)')
     opt = parser.parse_args()
