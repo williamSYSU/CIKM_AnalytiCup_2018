@@ -57,8 +57,8 @@ class Bi_LSTM(nn.Module):
 
         self.dropout = nn.Dropout(DROPOUT_RATE)
 
-        # self.stm = nn.Softmax(dim=0)
-        self.stm = nn.Sigmoid()
+        self.stm = nn.Softmax(dim=1)
+        # self.stm = nn.Sigmoid()
 
     def forward(self, input1, input2):
         out1, (_, _) = self.bi_lstm_context1(input1)
