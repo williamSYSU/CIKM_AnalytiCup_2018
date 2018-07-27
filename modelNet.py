@@ -76,7 +76,7 @@ class Bi_LSTM(nn.Module):
         out = self.dense1(all_merge)
         out = self.dense2(out)
         out = self.dense3(out)
-        # out = self.dropout(out)
+        out = self.dropout(out)
         out = self.stm(out)
         return out
 
