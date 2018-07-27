@@ -110,17 +110,23 @@ class Instructor:
                 self.optimizer.step()
 
                 # 查看模型在验证集上的验证效果
-                if global_step % self.opt.log_step == 0:
-                    self.verifyModel()
-                    self.writer.add_scalar('Verify Loss', self.final_avg_loss, global_step)
-                    min_verify_loss = min(min_verify_loss, self.final_avg_loss)
+                if self.opt.if_log_verify is 1 and global_step % self.opt.log_step is 0:
+                    verify_loss = self.stepVerify()
+                    self.writer.add_scalar('Verify Loss', verify_loss, global_step)
+                    min_verify_loss = min(min_verify_loss, verify_loss)
 
-            print('> epoch {} of {}\n>> loss: {}\n>> min train loss: {}\n>> min verify loss: {}'.format(
+            print('>> epoch {} of {}, -loss: {} -min train loss: {} - min verify loss: {}'.format(
                 epoch + 1, modelNet.EPOCH_NUM, loss.item(), min_train_loss, min_verify_loss))
-            # 计算训练过程的最小Loss
-            min_train_loss = min(min_train_loss, loss.item())
-            restore_loss.append(loss.item())
-            self.writer.add_scalar('loss', loss, epoch)
+
+            min_train_loss = min(min_train_loss, loss.item())  # 计算训练过程的最小Loss
+            restore_loss.append(loss.item())  # 保存每轮loss
+            self.writer.add_scalar('Train_Loss', loss, epoch)  # 画loss曲线
+
+            # "早停"策略，loss低于设定值时，停止训练
+            if loss.item() <= self.opt.early_stop:
+                print('> !!!Training is forced to stop!!!')
+                print('> Current loss: {}, threshold loss: {}'.format(loss.item(), self.opt.early_stop))
+                break
         self.writer.close()
 
     # 在验证集上验证
@@ -145,6 +151,26 @@ class Instructor:
 
             self.final_avg_loss = float(sum_loss / len(self.verify_data_loader))
             print('>>> Final average loss: ', self.final_avg_loss)
+
+    # 每个globel_step (log_step)记录在验证集上的loss
+    def stepVerify(self):
+        self.model.eval()  # 设置模型为验证模式
+        sum_loss = 0
+
+        with torch.no_grad():
+            for idx, sample_batch in enumerate(self.verify_data_loader):
+                self.model.zero_grad()
+
+                input1 = sample_batch['input1'].to(modelNet.DEVICE)
+                input2 = sample_batch['input2'].to(modelNet.DEVICE)
+                label = sample_batch['label'].to(modelNet.DEVICE)
+
+                outputs = self.model(input1, input2)[:, 1].view(-1)
+
+                loss = self.criterion(outputs, label)
+                sum_loss += loss
+
+            return float(sum_loss / len(self.verify_data_loader))
 
     # 在测试集上测试并保存模型参数和模型
     def testModel(self):

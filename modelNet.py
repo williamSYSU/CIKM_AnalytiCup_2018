@@ -93,7 +93,7 @@ class LSTM(nn.Module):
         self.dense3 = nn.Linear(50, TARGET_SIZE)
 
         self.dropout = nn.Dropout(DROPOUT_RATE)
-        self.stm = nn.Softmax(dim=0)
+        self.stm = nn.Softmax(dim=1)
         # self.stm = nn.Sigmoid()
 
     def forward(self, input1, input2):
