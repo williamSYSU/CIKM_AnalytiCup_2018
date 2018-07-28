@@ -44,7 +44,7 @@ def initParameter(opt):
     CONV_TARGET = opt.conv_target
 
 
-# 两个lstm网络模型
+# 双向lstm
 class Bi_LSTM(nn.Module):
     def __init__(self):
         super(Bi_LSTM, self).__init__()
@@ -117,6 +117,30 @@ class LSTM(nn.Module):
         out = self.dense3(out)
         out = self.dropout(out)
         out = self.stm(out)
+        return out
+
+
+# Manhattan LSTM
+class ManhattanLSTM(nn.Module):
+    def __init__(self):
+        super(ManhattanLSTM, self).__init__()
+        print('Current Model: Manhattan LSTM')
+        self.lstm = nn.LSTM(EMBEDDING_SIZE, HIDDEN_SIZE)
+        self.fc1 = nn.Linear(HIDDEN_SIZE, 50)
+        self.fc2 = nn.Linear(50, 2)
+        self.stm = nn.Softmax(dim=1)
+        self.dropout = nn.Dropout(DROPOUT_RATE)
+
+    def forward(self, input1, input2):
+        out1, _ = self.lstm(input1)
+        out2, _ = self.lstm(input2)
+
+        distance = torch.abs(out1[:, MAX_SQE_LEN - 1, :] - out2[:, MAX_SQE_LEN - 1, :])
+        out = self.fc1(distance)
+        out = self.dropout(out)
+        out = self.fc2(out)
+        out = self.stm(out)
+
         return out
 
 

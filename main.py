@@ -8,13 +8,13 @@ from modelNet import Bi_LSTM
 from modelNet import LSTM
 from modelNet import MatchSRNN
 from modelNet import Text2Image
-import load_data
+from modelNet import ManhattanLSTM
 
 if __name__ == '__main__':
     # 可调超参
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', '--model_name', default='bi_lstm', type=str,
-                        help='> model: bi_lstm, lstm, srnn, text2image \n> default: bi_lstm')
+                        help='> model: bi_lstm, lstm, man_lstm, srnn, text2image \n> default: bi_lstm')
     parser.add_argument('-l', '--learning_rate', default=0.01, type=float, help='> default: 0.01')
     parser.add_argument('-e', '--epoch_num', default=100, type=int, help='> default: 100')
     parser.add_argument('-b', '--batch_size', default=16, type=int, help='> default:16')
@@ -43,7 +43,8 @@ if __name__ == '__main__':
         'bi_lstm': Bi_LSTM,
         'lstm': LSTM,
         'srnn': MatchSRNN,
-        'text2image': Text2Image
+        'text2image': Text2Image,
+        'man_lstm': ManhattanLSTM
     }
 
     # 优化器种类
@@ -68,7 +69,7 @@ if __name__ == '__main__':
     instructor = Instructor(opt)
 
     # 显示训练前的结果
-    instructor.beforeTrain()
+    # instructor.beforeTrain()
 
     # 开始训练模型
     instructor.beginTrain()
