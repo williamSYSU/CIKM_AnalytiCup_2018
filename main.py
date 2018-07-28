@@ -8,6 +8,7 @@ from modelNet import Bi_LSTM
 from modelNet import LSTM
 from modelNet import MatchSRNN
 from modelNet import Text2Image
+import load_data
 
 if __name__ == '__main__':
     # 可调超参

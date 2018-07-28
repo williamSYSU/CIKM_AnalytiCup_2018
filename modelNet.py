@@ -73,10 +73,12 @@ class Bi_LSTM(nn.Module):
             else:
                 all_merge = torch.cat((all_merge, merge.unsqueeze(0)), dim=0)
 
-        out = self.dense1(all_merge)
+        out = self.dropout(all_merge)
+        out = self.dense1(out)
+        out = self.dropout(out)
+
         out = self.dense2(out)
         out = self.dense3(out)
-        out = self.dropout(out)
         out = self.stm(out)
         return out
 

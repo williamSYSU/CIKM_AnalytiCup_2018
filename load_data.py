@@ -5,6 +5,11 @@
 
 import re
 import unicodedata
+import nltk
+from nltk import pos_tag
+from nltk.tokenize import word_tokenize
+from nltk.stem import WordNetLemmatizer
+from nltk.corpus import stopwords
 
 import torch
 
@@ -28,6 +33,33 @@ def normalizeString(s):
     s = re.sub(r"([.!?])", r"", s)
     s = re.sub(r"[^a-z0-9\t]+", r" ", s)
     return s
+
+
+# 词性还原
+def lemmatize_all(sentence):
+    wnl = WordNetLemmatizer()
+    for word, tag in pos_tag(word_tokenize(sentence)):
+        if tag.startswith('NN'):
+            yield wnl.lemmatize(word, pos='n')
+        elif tag.startswith('VB'):
+            yield wnl.lemmatize(word, pos='v')
+        elif tag.startswith('JJ'):
+            yield wnl.lemmatize(word, pos='a')
+        elif tag.startswith('R'):
+            yield wnl.lemmatize(word, pos='r')
+        else:
+            yield word
+
+
+# 英语词的预处理
+# 小写、去标点、去非字母字符、词性还原
+def normalizeEnglishString(sentence):
+    sentence = ' '.join(lemmatize_all(normalizeString(sentence)))
+    # token = word_tokenize(sentence)
+    # cleaned = [word for word in token if word not in stopwords.words('english')]
+    # sentence = ' '.join(cleaned)
+
+    return sentence
 
 
 # 将词存入词典
