@@ -49,8 +49,8 @@ class Bi_LSTM(nn.Module):
     def __init__(self):
         super(Bi_LSTM, self).__init__()
         print('Current Model: Bi_LSTM')
-        self.bi_lstm_context1 = nn.LSTM(EMBEDDING_SIZE, HIDDEN_SIZE, bidirectional=True)
-        self.bi_lstm_context2 = nn.LSTM(EMBEDDING_SIZE, HIDDEN_SIZE, bidirectional=True)
+        self.bi_lstm_context1 = nn.LSTM(EMBEDDING_SIZE, HIDDEN_SIZE, bidirectional=True, batch_first=True)
+        self.bi_lstm_context2 = nn.LSTM(EMBEDDING_SIZE, HIDDEN_SIZE, bidirectional=True, batch_first=True)
         self.dense1 = nn.Linear(8 * HIDDEN_SIZE, 400)
         self.dense2 = nn.Linear(400, 100)
         self.dense3 = nn.Linear(100, TARGET_SIZE)
@@ -88,8 +88,8 @@ class LSTM(nn.Module):
     def __init__(self):
         super(LSTM, self).__init__()
         print('Current model: LSTM')
-        self.lstm1 = nn.LSTM(EMBEDDING_SIZE, HIDDEN_SIZE)
-        self.lstm2 = nn.LSTM(EMBEDDING_SIZE, HIDDEN_SIZE)
+        self.lstm1 = nn.LSTM(EMBEDDING_SIZE, HIDDEN_SIZE, batch_first=True)
+        self.lstm2 = nn.LSTM(EMBEDDING_SIZE, HIDDEN_SIZE, batch_first=True)
         self.dense1 = nn.Linear(2 * HIDDEN_SIZE, 256)
         self.dense2 = nn.Linear(256, 50)
         self.dense3 = nn.Linear(50, TARGET_SIZE)
@@ -101,7 +101,6 @@ class LSTM(nn.Module):
     def forward(self, input1, input2):
         out1, hidden1 = self.lstm1(input1)
         out2, hidden2 = self.lstm2(input2)
-
         # 当batch_size > 1时，需要根据batch_size手动合并
         all_merge = []
         for idx in range(len(out1)):
@@ -125,7 +124,7 @@ class ManhattanLSTM(nn.Module):
     def __init__(self):
         super(ManhattanLSTM, self).__init__()
         print('Current Model: Manhattan LSTM')
-        self.lstm = nn.LSTM(EMBEDDING_SIZE, HIDDEN_SIZE)
+        self.lstm = nn.LSTM(EMBEDDING_SIZE, HIDDEN_SIZE, batch_first=True)
         self.fc1 = nn.Linear(HIDDEN_SIZE, 50)
         self.fc2 = nn.Linear(50, 2)
         self.stm = nn.Softmax(dim=1)
